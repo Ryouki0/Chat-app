@@ -1,20 +1,10 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+import react from 'react';
+import './config/firebaseConfig';
+import RootNavigation from './navigation';
+(window.navigator as any).userAgent = "ReactNative"; //firestore db error without this https://github.com/firebase/firebase-js-sdk/issues/7962
+export default function App(){
+    return (
+        <RootNavigation />
+    )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
