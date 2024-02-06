@@ -1,6 +1,6 @@
 
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useState} from 'react';
 import { Input } from 'react-native-elements';
@@ -8,9 +8,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, addDoc, getFirestore, collection, setDoc, getDoc, QuerySnapshot, getDocs } from 'firebase/firestore';
+import { ThemeContext } from '../hooks/useTheme';
 const auth = getAuth();
 const db = getFirestore();
 export default function CreateAccountScreen() {
+	const theme = useContext(ThemeContext);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
@@ -37,7 +39,7 @@ export default function CreateAccountScreen() {
 				CreatedAt: new Date(),
 				uid: `${createdUser.user.uid}`,
 				pfp: '',
-			})
+			});
 		}catch(err){
 			setError({isError: true, message: err.message});
 		}
@@ -52,21 +54,34 @@ export default function CreateAccountScreen() {
 				console.log('username exists');
 				exists =  true;
 			}
-		})
+		});
 		return exists;
 	}
 
 
 	return (
-		<View style={styles.container}>
+		<View style={[theme.container, {justifyContent: 'flex-start', paddingTop: 40}]}>
 			{error.isError? (<Text style={styles.error}>
 				{error.message}
 			</Text>) : (<></>)}
+
+			<Input 
+				onChangeText={(text) => {
+					setUsername(text);}}
+				placeholder='Username'
+				containerStyle={styles.input}
+				style={{fontSize: 14, color: theme.text.color}}
+			/>
+
 			<Input onChangeText={(text) => {
-				setEmail(text);}}
-			 placeholder='Email' leftIcon={
-				<Icon name='envelope' size={16} />}
-			containerStyle={styles.input} />
+				setEmail(text);
+			}}
+			placeholder='Email' leftIcon={
+				<Icon name='envelope' size={16} color={theme.text.color}/>
+			}
+			containerStyle={styles.input} 
+			style={{fontSize: 14, color: theme.text.color}}
+			/>
       
 			<Input 
 				onChangeText={(text) => {
@@ -74,16 +89,10 @@ export default function CreateAccountScreen() {
 				placeholder='Password'
 				secureTextEntry={true}
 				leftIcon={
-					<Icon name='key' size={16}/>
+					<Icon name='key' size={16} color={theme.text.color}/>
 				}
 				containerStyle={styles.input}
-			/>
-
-			<Input 
-				onChangeText={(text) => {
-					setUsername(text);}}
-				placeholder='Username'
-				containerStyle={styles.input}
+				style={{fontSize: 14, color: theme.text.color}}
 			/>
 
 			<Button title='Sign up' 

@@ -1,6 +1,8 @@
 import 'dotenv/config';
-export default {
-  "expo": {
+export default ({config}) => {
+  return {
+    ...config,
+    "expo": {
     "name": "expotest2",
     "slug": "expotest2",
     "version": "1.0.0",
@@ -42,4 +44,5 @@ export default {
       }
     }
   }
+}
 }

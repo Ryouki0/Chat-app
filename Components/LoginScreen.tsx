@@ -1,16 +1,16 @@
 
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 import { Button, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-
+import { ThemeContext, Theme } from '../hooks/useTheme';
 const auth = getAuth();
 
 export default function LoginScreen() {
-
+	const theme = useContext(ThemeContext);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState({
@@ -32,25 +32,29 @@ export default function LoginScreen() {
 
 
 	return (
-		<View style={styles.container}>
+		<View style={[theme.container, {justifyContent: 'flex-start', paddingTop: 40}]}>
 			{error.isError? (<Text style={styles.error}>
 				{error.message}
 			</Text>) : (<></>)}
 			<Input onChangeText={(text) => {
 				setEmail(text);
 			}} placeholder='Email' leftIcon={
-				<Icon name='envelope' size={16} />}
-			containerStyle={styles.input}  style={{fontSize: 14}}/>
+				<Icon name='envelope' size={16} 
+					color={theme.text.color} />
+			}
+			containerStyle={styles.input} 
+			 style={{fontSize: 14, color: theme.text.color}}/>
       
 			<Input 
 				onChangeText={(text) => {
-					setPassword(text);}}
+					setPassword(text);}
+				}
 				placeholder='Password'
 				secureTextEntry={true}
 				leftIcon={
-					<Icon name='key' size={16}/>
+					<Icon name='key' size={16} color={theme.text.color}/>
 				}
-				containerStyle={styles.input} style={{fontSize: 14}}
+				containerStyle={styles.input} style={{fontSize: 14, color: theme.text.color}}
 			/>
 
 			<Button title='Sign in' 
@@ -64,8 +68,6 @@ export default function LoginScreen() {
 
 const styles = StyleSheet.create({
 	container: {
-		flex: 1,
-		backgroundColor: '#fff',
 		alignItems: 'center',
 		paddingTop: 40,
 	},

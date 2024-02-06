@@ -8,13 +8,12 @@ import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import uuid from 'react-native-uuid';
 import { getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
-import StorageImage from './StorageImage';
-
+import StorageImage from '../StorageImage';
 const storage = getStorage();
 const auth = getAuth();
 const db = getFirestore();
-export default function Profile() {
-	const [userPfp, setUserPfp] = useState<String>(null);
+export default function Profile({route, navigation}) {
+	const [userPfp, setUserPfp] = useState<string>(null);
 	const [user, setUser] = useState<User>(null);
 	useFocusEffect(
 		React.useCallback(() => {
@@ -27,29 +26,28 @@ export default function Profile() {
 				getPfp();
 			}
 		}, [user])
-	)
+	);
 
 	const pickImage = async () => {
-		
 		try{
-			let result = await ImagePicker.launchImageLibraryAsync({
+			const result = await ImagePicker.launchImageLibraryAsync({
 				mediaTypes: ImagePicker.MediaTypeOptions.All,
 				quality: 1,
 			  });
 			  console.log('result:', result.assets[0].uri);
-			  let refId = uuid.v4();
+			  const refId = uuid.v4();
 			  const  storageRef = ref(storage, `${refId}`);
 			  const fetchUri = await fetch(result.assets[0].uri);
 			  const blob = await fetchUri.blob();
 			  await uploadBytesResumable(storageRef, blob).then((snapShot) => {
 				  console.log('snapshot: ', snapShot.state);
-			  })
+			  });
 			  await updateDoc(doc(db, 'Users', `${user.uid}`), {pfp: `${refId}`});
 			  setUserPfp((await getDoc(doc(db, 'Users', `${user.uid}`))).data().pfp);
 		}catch(err){
 			console.log('error in pickImage: ', err);
 		}
-	}
+	};
 
 
 	async function signOut(){
@@ -61,11 +59,9 @@ export default function Profile() {
 		}
 	}
 
-	return <>
-		{userPfp ? (
-			<StorageImage imagePath={userPfp} style={{width: 200, height: 200}}></StorageImage>
-		):(<></>)}
-			<Button title='sign out' onPress={() => {signOut()}}></Button>
-			<Button title='imagepicker' onPress={() => {pickImage()}}></Button>
-	</>
+	return <View style={{alignItems: 'center'}}>
+		<StorageImage imagePath={userPfp} style={{width: 200, height: 200, borderRadius: 200}}></StorageImage>
+		<Button title='sign out' onPress={() => {signOut();}}></Button>
+		<Button title='imagepicker' onPress={() => {pickImage();}}></Button>
+	</View>;
 }

@@ -2,9 +2,9 @@
 import React, { useEffect } from 'react';
 import { getDownloadURL, getStorage, ref } from 'firebase/storage';
 import { useState } from 'react';
-import { Image, View} from 'react-native';
+import { View} from 'react-native';
 import Default_pfp from '../assets/Default_pfp.jpg';
-
+import {Image} from 'expo-image';
 const storage = getStorage();
 
 export default function StorageImage({ imagePath = null, style}){
@@ -15,6 +15,7 @@ export default function StorageImage({ imagePath = null, style}){
 		async function getUrl() {
 
 			if(imagePath === null || imagePath === undefined || imagePath === ''){
+				setImageUrl('');
 				return -1;
 			}
 
@@ -31,12 +32,12 @@ export default function StorageImage({ imagePath = null, style}){
 		console.log('inside useEffect in storageimage');
 	}, [imagePath]);
 
-	return <View>
+	return <>
 		{imageUrl ? (
 			<Image source={{uri: imageUrl}} style={style} />
 		) : (
 			<Image source={ Default_pfp } style={style}></Image>
 		)}
-	</View>;
+	</>;
 
 }
