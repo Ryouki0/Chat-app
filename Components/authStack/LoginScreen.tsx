@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { Button, Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { ThemeContext, Theme } from '../hooks/useTheme';
+import { ThemeContext, Theme } from '../../hooks/useTheme';
 const auth = getAuth();
 
 export default function LoginScreen() {

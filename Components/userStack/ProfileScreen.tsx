@@ -62,6 +62,6 @@ export default function Profile({route, navigation}) {
 	return <View style={{alignItems: 'center'}}>
 		<StorageImage imagePath={userPfp} style={{width: 200, height: 200, borderRadius: 200}}></StorageImage>
 		<Button title='sign out' onPress={() => {signOut();}}></Button>
-		<Button title='imagepicker' onPress={() => {pickImage();}}></Button>
+		<Button title='Change pfp' onPress={() => {pickImage();}}></Button>
 	</View>;
 }

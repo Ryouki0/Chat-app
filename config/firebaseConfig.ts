@@ -3,8 +3,8 @@ import { initializeApp } from "firebase/app";
 import 'firebase/auth';
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import  Constants  from "expo-constants";
 
+import  Constants  from "expo-constants";
 const firebaseConfig = {
         apiKey: Constants.expoConfig.extra.firebaseApiKey,
         authDomain: Constants.expoConfig.extra.firebaseAuthDomain,
@@ -18,4 +18,5 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const storage = getStorage(app);
+
 export default app;

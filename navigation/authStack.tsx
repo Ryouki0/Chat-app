@@ -3,9 +3,9 @@ import React, { useContext } from 'react';
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import LoginScreen from '../Components/LoginScreen';
-import CreateAccountScreen from '../Components/CreateAccountScreen';
-import WelcomeScreen from '../Components/WelcomeScreen';
+import LoginScreen from '../Components/authStack/LoginScreen';
+import CreateAccountScreen from '../Components/authStack/CreateAccountScreen';
+import WelcomeScreen from '../Components/authStack/WelcomeScreen';
 import { ThemeContext } from '../hooks/useTheme';
 import { Button } from 'react-native-elements';
 import ThemeChange from '../Components/ThemeChange';

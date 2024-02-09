@@ -2,7 +2,7 @@
 import React, { useContext, useEffect } from 'react';
 import { useState } from 'react';
 import { getFirestore, onSnapshot } from 'firebase/firestore';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ScrollView, Text, StyleSheet, View } from 'react-native';
 import { Input } from 'react-native-elements';
 import sendMessage from '../../utils/sendMessage';
@@ -12,8 +12,9 @@ import { AntDesign } from '@expo/vector-icons';
 import LastMessage from './LastMessage';
 import { ThemeContext } from '../../hooks/useTheme';
 import DateDisplay from '../DateDisplay';
+import { Message } from '../../models/message';
 const db = getFirestore();
-const months = ['Jan','Feb','Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
 let isScrollAtBottom = true;
 
 export default function ChatRoom({route, navigation}) {
@@ -38,12 +39,33 @@ export default function ChatRoom({route, navigation}) {
 
 			async function getMessages() {
 				const messages = (await getDoc(doc(db, 'PrivateChatRooms', `${roomID}`))).data().Messages;
+				if(messages.length < 1){
+					//console.log('getMessages: ', messages);
+					return -1;
+				}
+				if(messages[messages.length-1].user === otherUserID){
+					const newMessages = messages.map((mess:Message, idx:number) => {
+						if(idx === messages.length-1){
+							return {
+								id: mess.id,
+								message: mess.message,
+								seen: true,
+								time: mess.time,
+								user: mess.user,
+							}
+						}else{
+							return mess;
+						}
+					})
+					updateDoc(doc(db, 'PrivateChatRooms', `${roomID}`), {Messages: newMessages});
+				}
 				setMessages(getStyles(currentUserID, messages));
 				console.log('getMessages');
 			}
 			getMessages();
 			getPfp();
 			return () => {observer();
+				setOtherUserPfp(null);
 			setMessages(null)};
 		}, [otherUserID])
 	);

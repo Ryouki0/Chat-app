@@ -58,7 +58,7 @@ const right = {
 	borderColor: '#636363',
 	borderRadius: 30,
 	marginRight: 20,
-	maxWidth: 275,
+	maxWidth: '75%',
 	backgroundColor: '#636363',
 };
 const left= {
@@ -67,7 +67,7 @@ const left= {
 	marginBottom: 1, 
 	padding: 10, 
 	borderRadius: 30, 
-	maxWidth: 275,
+	maxWidth: '75%',
 	borderColor: '#3b3b3b',
 	marginLeft: 44,
 };

@@ -3,13 +3,14 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity } from 'react-native';
 import { User, getAuth, signOut } from 'firebase/auth';
-import { collection, doc, getFirestore, setDoc } from 'firebase/firestore'; 
+import { collection, doc, getFirestore, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'; 
 import { getDoc } from 'firebase/firestore';
 import getAllUsers from '../../utils/getAllUsers';
 import StorageImage from '../StorageImage';
 import { useFocusEffect } from '@react-navigation/native';
 import createChatRoom from '../../utils/createChatRoom';
 import { ThemeContext } from '../../hooks/useTheme';
+import { registerForPushNotificationsAsync } from '../../notification';
 const auth = getAuth();
 const db = getFirestore();
 interface user{
@@ -31,11 +32,23 @@ export default function Chats({route, navigation}) {
   
 	useFocusEffect(
 		React.useCallback(() => {
+
+			const observer = onSnapshot(doc(db, 'Users', `${auth.currentUser.uid}`), async ()=> {setAllUsers(await getAllUsers())})
+
 			async function getUsers() {
 				setCurrentUser(await getUser());
 				setAllUsers(await getAllUsers());
 			}
+
+			async function getExpoPushToken(){
+				const token = await registerForPushNotificationsAsync();
+				await updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {expoPushToken: token});
+			}
+			getExpoPushToken();
 			getUsers();
+			return () => {
+				observer();
+			}
 		}, [])
 	);
 
@@ -62,7 +75,7 @@ export default function Chats({route, navigation}) {
 					</TouchableOpacity>;
 				})
 			) : (
-				<></>
+				<Text>Loading...</Text>
 			)}
 			<StatusBar style="auto" />
 		</ScrollView>

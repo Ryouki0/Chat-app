@@ -8,7 +8,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, addDoc, getFirestore, collection, setDoc, getDoc, QuerySnapshot, getDocs } from 'firebase/firestore';
-import { ThemeContext } from '../hooks/useTheme';
+import { ThemeContext } from '../../hooks/useTheme';
 const auth = getAuth();
 const db = getFirestore();
 export default function CreateAccountScreen() {
