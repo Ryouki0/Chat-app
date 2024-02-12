@@ -22,7 +22,7 @@ export default ({config}) => {
     },
     "android": {
       "package": "com.asd.asd",
-      "googleServices": "./google-services.json",
+      "googleServicesFile":"./google-services.json",
       "versionCode": "1",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

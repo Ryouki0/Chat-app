@@ -13,7 +13,14 @@ interface room{
     },
     otherUser: string,
 }
-export default async function getLastMessages(allUsers){
+
+interface user{
+	name: string,
+	pfp: string,
+	uid: string,
+}
+
+export default async function getLastMessages(allUsers: user[]){
 	const chatRooms = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data().PrivateChatRooms;
 	const allUsersWithMessages = allUsers.map((user) => {
 		let userWithMessage = null;

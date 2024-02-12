@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import {useState} from 'react';
 import {Text, View,} from 'react-native';
 import {Button} from 'react-native-elements';
@@ -9,23 +9,29 @@ import uuid from 'react-native-uuid';
 import { getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import StorageImage from '../StorageImage';
+import { ThemeContext } from '../../hooks/useTheme';
+import { DocumentData } from 'firebase/firestore';
 const storage = getStorage();
 const auth = getAuth();
 const db = getFirestore();
 export default function Profile({route, navigation}) {
+	const theme = useContext(ThemeContext);
 	const [userPfp, setUserPfp] = useState<string>(null);
-	const [user, setUser] = useState<User>(null);
+	const [userId, setUserId] = useState<string>(null);
+	const [userData, setUserData] = useState<DocumentData>(null);
 	useFocusEffect(
 		React.useCallback(() => {
-			setUser(auth.currentUser);
+			setUserId(auth.currentUser.uid);
 			async function getPfp() {
 				console.log('called');
-				setUserPfp((await getDoc(doc(db, 'Users', `${user.uid}`))).data().pfp);
+				const userData = (await getDoc(doc(db, 'Users', `${userId}`))).data();
+				setUserData(userData);
+				setUserPfp(userData.pfp);
 			}
-			if(user !== null){
+			if(userId !== null){
 				getPfp();
 			}
-		}, [user])
+		}, [userId])
 	);
 
 	const pickImage = async () => {
@@ -42,13 +48,12 @@ export default function Profile({route, navigation}) {
 			  await uploadBytesResumable(storageRef, blob).then((snapShot) => {
 				  console.log('snapshot: ', snapShot.state);
 			  });
-			  await updateDoc(doc(db, 'Users', `${user.uid}`), {pfp: `${refId}`});
-			  setUserPfp((await getDoc(doc(db, 'Users', `${user.uid}`))).data().pfp);
+			  await updateDoc(doc(db, 'Users', `${userId}`), {pfp: `${refId}`});
+			  setUserPfp((await getDoc(doc(db, 'Users', `${userId}`))).data().pfp);
 		}catch(err){
 			console.log('error in pickImage: ', err);
 		}
 	};
-
 
 	async function signOut(){
 		try{
@@ -60,6 +65,7 @@ export default function Profile({route, navigation}) {
 	}
 
 	return <View style={{alignItems: 'center'}}>
+		{userData && <Text style={{color: theme.text.color, fontSize: 18, margin: 5}}>{userData.Username}</Text>}
 		<StorageImage imagePath={userPfp} style={{width: 200, height: 200, borderRadius: 200}}></StorageImage>
 		<Button title='sign out' onPress={() => {signOut();}}></Button>
 		<Button title='Change pfp' onPress={() => {pickImage();}}></Button>

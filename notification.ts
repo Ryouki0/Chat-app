@@ -12,35 +12,31 @@ Notifications.setNotificationHandler({
 	}),
 });
 
-export async function sendPushNotification(expoPushToken) {
-	try{
-		const message = {
-			to: expoPushToken,
-			sound: 'default',
-			title: 'Original Title',
-			body: 'And here is the body!',
-			data: { someData: 'goes here' },
-		};
-  
-		await fetch('https://exp.host/--/api/v2/push/send', {
-			method: 'POST',
-			headers: {
-				Accept: 'application/json',
-				'Accept-encoding': 'gzip, deflate',
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify(message),
-		});
-	}catch(err){
-		console.error(err);
-	}
-    
-}
+export async function sendPushNotification(token: string, title: string, message: string) {
+	await fetch('https://fcm.googleapis.com/fcm/send', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `key=AAAAHnxOnW8:APA91bEPggeQ1KZwaY0A2kIWjDGGyGW0trrqSd9inhdy8bZ5YG62KWShL-8Q3o3Oq6mLm5_4OhAdnFnvm4YALI-h5qSSeEVoQE9CTgwxmzAIu98cnZSxEzZgivwxxKcpyj12Sk_uJVsj`,
+  },
+  body: JSON.stringify({
+    to: token,
+    priority: 'normal',
+    data: {
+      experienceId: '@ryouki0/expotest2',
+      scopeKey: '@ryouki0/expotest2',
+      title: title,
+      message: message,
+    },
+  }),
+})
+}  
 
 export async function registerForPushNotificationsAsync() {
 	let token;
-  
+	console.log('inside registerForPushNotification.................................................................');
 	if (Platform.OS === 'android') {
+		console.log('Platform.OS ============== ANDROID================================');
 		Notifications.setNotificationChannelAsync('default', {
 			name: 'default',
 			importance: Notifications.AndroidImportance.MAX,
@@ -52,6 +48,7 @@ export async function registerForPushNotificationsAsync() {
 	if (Device.isDevice) {
 		const { status: existingStatus } = await Notifications.getPermissionsAsync();
 		let finalStatus = existingStatus;
+		console.log('FINAL STATUS:             ', finalStatus);
 		if (existingStatus !== 'granted') {
 			const { status } = await Notifications.requestPermissionsAsync();
 			finalStatus = status;
@@ -60,13 +57,10 @@ export async function registerForPushNotificationsAsync() {
 			alert('Failed to get push token for push notification!');
 			return;
 		}
-		token = await Notifications.getExpoPushTokenAsync({
-			projectId: Constants.expoConfig?.extra?.eas?.projectId,
-		});
-		console.log(token);
+		token = (await Notifications.getDevicePushTokenAsync()).data;;
+		console.log('TOKEN:                  ',token);
 	} else {
 		alert('Must use physical device for Push Notifications');
 	}
-  
-	return token.data;
+	return token;
 }

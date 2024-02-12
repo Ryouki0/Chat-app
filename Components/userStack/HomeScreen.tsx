@@ -11,6 +11,8 @@ import { useFocusEffect } from '@react-navigation/native';
 import createChatRoom from '../../utils/createChatRoom';
 import { ThemeContext } from '../../hooks/useTheme';
 import { registerForPushNotificationsAsync } from '../../notification';
+import DateDisplay from '../DateDisplay';
+import LoadingScreen from '../LoadingScreen';
 const auth = getAuth();
 const db = getFirestore();
 interface user{
@@ -54,7 +56,7 @@ export default function Chats({route, navigation}) {
 
 
 	return (
-		<ScrollView>
+		<ScrollView contentContainerStyle={{flexGrow: 1}}>
 			{allUsers ? (
 				allUsers.map((user, idx: number) => {
 					console.log('user: ', user);
@@ -64,18 +66,26 @@ export default function Chats({route, navigation}) {
 						<View  style={[{flexDirection: 'row', alignItems: 'center'}]}>
 							<StorageImage imagePath={user.pfp} style={styles.image} />
 							<View>
-								<Text style={{color: theme.text.color}}>{user.name}</Text>
+								<Text style={{color: theme.text2.color, fontSize: 16}}>
+									{user.name}
+								</Text>
 								{user.lastMessage.user === currentUser.uid ? (
-									<Text style={{color: theme.text.color}}>You: {user.lastMessage.message}</Text>
+									<Text style={{color: theme.text2.color, fontSize: theme.text2.fontSize}}>
+										You: {user.lastMessage.message}{'  '}·{'  '}
+										<DateDisplay time={user.lastMessage.time} style={theme.text2}></DateDisplay>
+									</Text>
 								):(
-									<Text style={{color: theme.text.color}}>{user.lastMessage.message}</Text>
+									<Text style={{color: theme.text2.color, fontSize: theme.text2.fontSize}}>
+										{user.lastMessage.message}{'  '}{user.lastMessage.time && '·'}{'  '}
+										<DateDisplay time={user.lastMessage.time} style={theme.text2}></DateDisplay>
+									</Text>
 								)}
 							</View>
 						</View>
 					</TouchableOpacity>;
 				})
 			) : (
-				<Text>Loading...</Text>
+				<LoadingScreen></LoadingScreen>
 			)}
 			<StatusBar style="auto" />
 		</ScrollView>
@@ -88,9 +98,12 @@ const styles = StyleSheet.create({
 		backgroundColor: '#fff',
 	},
 	image: {
-		width: 70,
-		height: 70,
+		width: 60,
+		height: 60,
 		padding: 4,
 		borderRadius: 300,
-	}
+		marginLeft: 10,
+		marginRight: 4,
+		marginBottom: 2,
+	},
 });

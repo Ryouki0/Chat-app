@@ -1,8 +1,8 @@
 
-import { getFirestore } from 'firebase/firestore';
+import { DocumentData, getFirestore } from 'firebase/firestore';
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import uid from 'react-native-uuid';
-import { sendPushNotification } from '../notification';
+import {sendPushNotification} from '../notification';
 
 const db = getFirestore();
 
@@ -22,7 +22,8 @@ export default async function sendMessage(roomID: string, currentUserID: string,
 		)});
 
 		//update chatrooms for current user
-		const chatRooms = (await getDoc(doc(db, 'Users', `${currentUserID}`))).data().PrivateChatRooms;
+		const currentUserData: DocumentData = (await getDoc(doc(db, 'Users', `${currentUserID}`))).data()
+		const chatRooms = currentUserData.PrivateChatRooms;
 		const newChatRooms = chatRooms.map((room) => {
 			if(roomID === room.chatRoomId){
 				return {
@@ -63,9 +64,9 @@ export default async function sendMessage(roomID: string, currentUserID: string,
 		await updateDoc(doc(db, 'Users', `${otherUserID}`), {PrivateChatRooms: otherUserNewChatRooms});
 	
 		if(!token){
-			console.log('no expoPushToken');
+			console.log('no device token');
 		}else{
-			sendPushNotification(token);
+			sendPushNotification(token, currentUserData.Username, message );
 		}
 	}catch(err){
 		console.log('error in sendMessage: ', err);

@@ -4,6 +4,7 @@ import AuthStack from './authStack';
 import UserStack from './userStack';
 import { User } from 'firebase/auth';
 import { Text } from 'react-native-elements';
+import LoadingScreen from '../Components/LoadingScreen';
 export default function RootNavigation(){
     const user = useAuthentication();           //user null by default, undefined if not logged in
     const [loading, setLoading] = useState<Boolean>(true);
@@ -16,8 +17,6 @@ export default function RootNavigation(){
         isLoading();
     }, [user])
 
-    return loading? <Text 
-        style={{position: 'absolute', alignSelf: 'center', fontSize: 30}}>loading...
-    </Text> : (
-         user? <UserStack /> : <AuthStack />)
+    return loading? <LoadingScreen /> : 
+         user? <UserStack /> : <AuthStack />
 }

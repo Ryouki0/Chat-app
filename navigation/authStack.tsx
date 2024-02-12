@@ -3,7 +3,6 @@ import React, { useContext } from 'react';
 import { DarkTheme, DefaultTheme, NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import LoginScreen from '../Components/authStack/LoginScreen';
 import CreateAccountScreen from '../Components/authStack/CreateAccountScreen';
 import WelcomeScreen from '../Components/authStack/WelcomeScreen';
 import { ThemeContext } from '../hooks/useTheme';
@@ -22,16 +21,7 @@ export default function AuthStack(){
     return (
         <NavigationContainer theme={navigationTheme}>
              <Stack.Navigator initialRouteName='WelcomeScreen' >
-                <Stack.Screen name='LoginScreen' component={LoginScreen} options={({ route }) => (
-                    {headerStyle:{
-                        backgroundColor: theme.container.backgroundColor,
-                    },
-                    title: 'Login', 
-                    headerTintColor: theme.text.color,
-                    animationTypeForReplace: 'pop',
-                    headerRight: () => <ThemeChange />
-                    })
-                }></Stack.Screen>
+                
                 <Stack.Screen name='CreateAccountScreen' component={CreateAccountScreen} options={({ route }) => (
                     {headerStyle:{
                         backgroundColor: theme.container.backgroundColor,

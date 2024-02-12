@@ -10,6 +10,7 @@ import { ThemeContext } from '../hooks/useTheme';
 import ThemeChange from '../Components/ThemeChange';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ChatRoomHeader from '../Components/userStack/ChatRoomHeader';
+import { StatusBar } from 'expo-status-bar';
 const Tab = createBottomTabNavigator();
 
 export default function UserStack(){
@@ -23,7 +24,9 @@ export default function UserStack(){
     }
 
     return (
-        <NavigationContainer theme={navigationTheme}>
+        <>
+        <StatusBar ></StatusBar>
+            <NavigationContainer theme={navigationTheme}>
              <Tab.Navigator screenOptions={({route}) => (
                 {
                     tabBarIcon: ({focused, color, size}) => {
@@ -35,7 +38,11 @@ export default function UserStack(){
                     }
                 }
              )}>
-                <Tab.Screen name='Chats' component={Chats}></Tab.Screen>
+                <Tab.Screen name='Chats' component={Chats} options={({route}) => (
+                    {
+                        headerRight: () => <ThemeChange></ThemeChange>
+                    })}>
+                </Tab.Screen>
                 <Tab.Screen name='Profile' component={Profile} options={({route}) => (
                     {
                         headerRight: () => <ThemeChange></ThemeChange>
@@ -47,5 +54,7 @@ export default function UserStack(){
                 })}></Tab.Screen>
             </Tab.Navigator>
         </NavigationContainer>
+        </>
+        
     )
 }
