@@ -1,5 +1,5 @@
 
-import Rract, {useContext} from 'react';
+import React, {useContext} from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import {DefaultTheme, DarkTheme} from '@react-navigation/native';
 import Chats from '../Components/userStack/HomeScreen';
@@ -10,23 +10,32 @@ import { ThemeContext } from '../hooks/useTheme';
 import ThemeChange from '../Components/ThemeChange';
 import Ionicons from 'react-native-vector-icons/Ionicons'
 import ChatRoomHeader from '../Components/userStack/ChatRoomHeader';
-import { StatusBar } from 'expo-status-bar';
+import { StatusBar, StatusBarStyle } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../state/store';
+import { darkTheme, lightTheme } from '../constants/theme';
+
 const Tab = createBottomTabNavigator();
 
 export default function UserStack(){
 
-    const theme = useContext(ThemeContext);
-    let navigationTheme = null;
-    if(theme.isDark){
+    const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+    const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
+    let navigationTheme = DefaultTheme
+    let statusBarStyle: StatusBarStyle = 'default';
+    let statusBarColor = 'white';
+    if(theme === darkTheme){
         navigationTheme = DarkTheme;
-    }else{
-        navigationTheme = DefaultTheme;
+        statusBarStyle = 'light-content';
+        statusBarColor = 'black';
+    }else {
+        statusBarStyle = 'dark-content';
     }
 
     return (
         <>
-        <StatusBar ></StatusBar>
-            <NavigationContainer theme={navigationTheme}>
+        <NavigationContainer theme={navigationTheme}>
+            <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarColor}></StatusBar>
              <Tab.Navigator screenOptions={({route}) => (
                 {
                     tabBarIcon: ({focused, color, size}) => {

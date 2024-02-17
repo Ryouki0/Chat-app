@@ -3,7 +3,9 @@ import React, { useContext } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { View, Text } from 'react-native';
 import StorageImage from '../StorageImage';
-import { ThemeContext } from '../../hooks/useTheme';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { darkTheme, lightTheme } from '../../constants/theme';
 
 const iconSize = 14;
 
@@ -13,12 +15,16 @@ export default function LastMessage({message, currentUserID, otherUserPfp, setTa
 		console.log('in lastmessage message is null');
 		return -1;
 	}
-	const theme = useContext(ThemeContext);
+	
+	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme})
+
+	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
+
 	return <>
 		{message.user === currentUserID ? (
 			message.seen ? (
 				<View style={{alignItems: 'flex-end', justifyContent: 'flex-end', flexDirection: 'row'}} >
-					<Text style={[message.extraStyles, {marginRight: 20-iconSize}, {color: theme.text.color}]}
+					<Text style={[message.extraStyles, {marginRight: 20-iconSize}, {color: theme.primaryText.color}]}
 						onPress={() => {setTappedMessage((messId) => {if(messId === message.id){
 							return null;
 						}else{
@@ -28,7 +34,7 @@ export default function LastMessage({message, currentUserID, otherUserPfp, setTa
 				</View>
 			) : (
 				<View style={{alignItems: 'flex-end', justifyContent: 'flex-end', flexDirection: 'row'}} >
-					<Text style={[message.extraStyles,  {marginRight: 20-iconSize, color: theme.text.color}]}
+					<Text style={[message.extraStyles,  {marginRight: 20-iconSize, color: theme.primaryText.color}]}
 						onPress={() => {setTappedMessage((messId) => {if(messId === message.id){
 							return null;
 						}else{
@@ -40,7 +46,7 @@ export default function LastMessage({message, currentUserID, otherUserPfp, setTa
 		) : (
 			<View style={{flexDirection: 'row', }} >
 				<StorageImage imagePath={otherUserPfp} style={{width: 37, height: 37, borderRadius: 30}} ></StorageImage>
-				<Text style={[message.extraStyles,{marginLeft: 6, color: theme.text.color} ]}
+				<Text style={[message.extraStyles,{marginLeft: 6, color: theme.primaryText.color} ]}
 					onPress={() => {setTappedMessage((messId) => {if(messId === message.id){
 						return null;
 					}else{

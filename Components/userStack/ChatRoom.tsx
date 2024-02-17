@@ -10,15 +10,20 @@ import getStyles from '../../utils/getStyles';
 import { useFocusEffect } from '@react-navigation/native';
 import { AntDesign } from '@expo/vector-icons';
 import LastMessage from './LastMessage';
-import { ThemeContext } from '../../hooks/useTheme';
 import DateDisplay from '../DateDisplay';
 import { Message } from '../../models/message';
+import { useSelector } from 'react-redux';
+import { darkTheme, lightTheme } from '../../constants/theme';
+import { RootState } from '../../state/store';
+import { FontAwesome } from '@expo/vector-icons';
 const db = getFirestore();
 
 let isScrollAtBottom = true;
 
 export default function ChatRoom({route, navigation}) {
-	const theme = useContext(ThemeContext);
+	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme})
+
+	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const roomID = route.params.roomID;
 	const currentUserID = route.params.currentUserID;
 	const otherUserID = route.params.otherUserID;
@@ -58,8 +63,9 @@ export default function ChatRoom({route, navigation}) {
 						}
 					})
 					updateDoc(doc(db, 'PrivateChatRooms', `${roomID}`), {Messages: newMessages});
+					
 				}
-				setMessages(getStyles(currentUserID, messages));
+				setMessages(getStyles(currentUserID, messages, themeState));
 				console.log('getMessages');
 			}
 			getMessages();
@@ -67,7 +73,7 @@ export default function ChatRoom({route, navigation}) {
 			return () => {observer();
 				setOtherUserPfp(null);
 			setMessages(null)};
-		}, [otherUserID])
+		}, [otherUserID, themeState])
 	);
         
 	const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
@@ -83,7 +89,6 @@ export default function ChatRoom({route, navigation}) {
 			ref={ref => {this.scrollView = ref;}}
 			onScroll={({nativeEvent}) => {
 				if (isCloseToBottom(nativeEvent)) {
-					console.log('closeto bottom ad');
 					isScrollAtBottom = true;
 				}else{
 					isScrollAtBottom = false;
@@ -92,7 +97,7 @@ export default function ChatRoom({route, navigation}) {
 			onContentSizeChange={() => {if(isScrollAtBottom){
 				this.scrollView.scrollToEnd({animated: false});
 			}}}
-			scrollEventThrottle={200}>
+			scrollEventThrottle={16}>
 
 			{messages ? (
 				messages.map((mess, idx: number) => {
@@ -100,7 +105,7 @@ export default function ChatRoom({route, navigation}) {
                
 					return <View key={mess.id} >
 						{tappedMessage === mess.id ? (
-							<DateDisplay time={mess.time} style={{color: theme.text.color, alignSelf: 'center'}} months={false} days={false}></DateDisplay>
+							<DateDisplay time={mess.time} style={{color: theme.primaryText.color, alignSelf: 'center'}} months={false} days={false}></DateDisplay>
 						) : (
 							<></>
 						)}
@@ -114,7 +119,7 @@ export default function ChatRoom({route, navigation}) {
 								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp}
 									setTappedMessage={setTappedMessage} ></LastMessage>
 							) : (
-								<Text style={[mess.extraStyles, {color: theme.text.color}]} onPress={() => {
+								<Text style={[mess.extraStyles, {color: theme.primaryText.color}]} onPress={() => {
 									setTappedMessage((messId) => {if(messId === mess.id){
 										return null;
 									}else{
@@ -129,11 +134,30 @@ export default function ChatRoom({route, navigation}) {
 			) : (<></>)}
 		</ScrollView>
 
-		<Input value={messToSend} placeholder='Type something...' style={{color: theme.text.color}} onChangeText={(text) => {
+		<Input value={messToSend} placeholder='Type something...' style={{color: theme.primaryText.color}}
+		 	rightIcon={<FontAwesome name="send" size={18} color={theme.primaryText.color} onPress={() => {
+				sendMessage(roomID, currentUserID, otherUserID, messToSend);
+				setMessToSend('');
+			}}/>}
+			inputContainerStyle={styles.inputBar}
+			onChangeText={(text) => {
 			setMessToSend(text);
         }} onSubmitEditing={() => {
 			sendMessage(roomID, currentUserID, otherUserID, messToSend);
 			setMessToSend('');
 		}}></Input>
 	</>;
+}
+const styles = {
+	inputBar: {
+		marginLeft: 10,
+		marginTop: 10, 
+		fontSize: 15, 
+		borderColor:'#636363',
+		borderWidth: 1, 
+		height: 35, 
+		borderRadius: 30,
+		padding: 10, 
+		marginBottom: -10,
+	}
 }

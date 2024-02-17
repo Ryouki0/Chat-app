@@ -5,10 +5,16 @@ import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import {View} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { ThemeContext } from '../../hooks/useTheme';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { darkTheme, lightTheme } from '../../constants/theme';
 const db = getFirestore();
 export default function ChatRoomHeader({params}){
     console.log('params: ', params.otherUserID);
-    const theme = useContext(ThemeContext);
+
+    const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+    const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
+
     const [otherUserPfp, setOtherUserPfp] = useState(null);
     const [otherUserName, setOtherUserName] = useState(null);
     useFocusEffect(
@@ -31,12 +37,8 @@ export default function ChatRoomHeader({params}){
     )
 
     return <View style={{flexDirection: 'row', alignItems: 'center'}}>
-        <StorageImage imagePath={otherUserPfp} style={{width: 50, height: 50, borderRadius: 70}}></StorageImage>
+        <StorageImage imagePath={otherUserPfp} style={{width: 50, height: 50, borderRadius: 70, marginRight: 10}}></StorageImage>
 
-        {otherUserName ? (
-            <Text style={{color: theme.text.color}}>{otherUserName}</Text>
-        ) : (
-            <></>
-        )}
+        {otherUserName && <Text style={{color: theme.primaryText.color}}>{otherUserName}</Text>}
     </View>
 }

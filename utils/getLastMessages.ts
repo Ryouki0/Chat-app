@@ -2,6 +2,7 @@
 import { getAuth } from 'firebase/auth';
 import { Timestamp, doc, getDoc, getFirestore } from 'firebase/firestore';
 
+
 const auth = getAuth();
 const db = getFirestore();
 interface room{
@@ -22,7 +23,7 @@ interface user{
 
 export default async function getLastMessages(allUsers: user[]){
 	const chatRooms = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data().PrivateChatRooms;
-	const allUsersWithMessages = allUsers.map((user) => {
+	let allUsersWithMessages = allUsers.map((user) => {
 		let userWithMessage = null;
 		chatRooms.forEach((room: room) => {
 			if(room.otherUser === user.name){
@@ -46,6 +47,41 @@ export default async function getLastMessages(allUsers: user[]){
 		}
 		return userWithMessage;
 	});
-	console.log('allUserWithMessages: ', allUsersWithMessages);
+	
+
+	//sort last messages by time
+		
+	const userWithNoLastMess = [];
+	const userWithLastMess = [];
+	allUsersWithMessages.forEach((mess) => {
+		if(!mess.lastMessage.time){
+			userWithNoLastMess.push(mess);
+		}else{
+			if(userWithLastMess.length < 1){
+				userWithLastMess.push(mess);
+			}else{
+				let inserted = false;
+				userWithLastMess.forEach((user, idx) => {
+					if(!inserted){
+						if(user.lastMessage.time.seconds > mess.lastMessage.time.seconds){
+							userWithLastMess.splice(idx, 0, mess);
+							inserted = true;
+							return;
+						}
+					}
+					
+			})
+			if(!inserted){
+				userWithLastMess.push(mess);
+			}
+			}
+			
+		}
+	})
+	
+	const reversed = userWithLastMess.reverse();
+
+	allUsersWithMessages = [...reversed, ...userWithNoLastMess];
+	
 	return(allUsersWithMessages);
 }

@@ -8,10 +8,17 @@ import { Button, Input, } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { ThemeContext, Theme } from '../../hooks/useTheme';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { lightColors } from '@rneui/base';
+import { darkTheme, lightTheme } from '../../constants/theme';
+import { doc, getFirestore, updateDoc } from 'firebase/firestore';
+import { registerForPushNotificationsAsync } from '../../notification';
 const auth = getAuth();
-
+const db = getFirestore();
 export default function WelcomeScreen({route, navigation}) {
-	const theme = useContext(ThemeContext);
+	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [error, setError] = useState({
@@ -26,11 +33,12 @@ export default function WelcomeScreen({route, navigation}) {
 		}
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
+			const token = registerForPushNotificationsAsync();
+			updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: true, expoPushToken: token})
 		}catch(err){
 			setError({isError: true, message: err.message});
 		}
 	}
-
 
 	return (
 		<View style={[theme.container, {justifyContent: 'flex-start', paddingTop: 40}]}>
@@ -41,10 +49,10 @@ export default function WelcomeScreen({route, navigation}) {
 				setEmail(text);
 			}} placeholder='Email' leftIcon={
 				<Icon name='envelope' size={16} 
-					color={theme.text.color} />
+					color={theme.primaryText.color} />
 			}
 			containerStyle={styles.input} 
-			 style={{fontSize: 14, color: theme.text.color}}/>
+			 style={{fontSize: 14, color: theme.primaryText.color}}/>
       
 			<Input 
 				onChangeText={(text) => {
@@ -53,12 +61,12 @@ export default function WelcomeScreen({route, navigation}) {
 				placeholder='Password'
 				secureTextEntry={true}
 				leftIcon={
-					<Icon name='key' size={16} color={theme.text.color}/>
+					<Icon name='key' size={16} color={theme.primaryText.color}/>
 				}
-				containerStyle={styles.input} style={{fontSize: 14, color: theme.text.color}}
+				containerStyle={styles.input} style={{fontSize: 14, color: theme.primaryText.color}}
 			/>
 
-			<Text style={{color: theme.text.color, marginBottom: 10, width: '70%'}}>
+			<Text style={{color: theme.primaryText.color, marginBottom: 10, width: '70%'}}>
 				Don't have an account? {'\t'}
 				<Text style={{color: '#007FFF', fontStyle: 'italic'}}onPress={() => {navigation.navigate('CreateAccountScreen')}}>
 					Sign up

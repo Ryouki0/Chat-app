@@ -3,7 +3,7 @@ import {Text} from 'react-native';
 const allMonths = ['Jan','Feb','Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 export default function DateDisplay({time, style, year=false, months=true, days=true, hours=true, minutes=true}) {
-    if(!time){
+	if(!time){
 		console.log('no time');
 		return null;
 	}

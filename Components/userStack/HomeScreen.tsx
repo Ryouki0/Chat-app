@@ -1,109 +1,88 @@
 
-import { StatusBar } from 'expo-status-bar';
-import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity } from 'react-native';
-import { User, getAuth, signOut } from 'firebase/auth';
-import { collection, doc, getFirestore, onSnapshot, setDoc, updateDoc } from 'firebase/firestore'; 
-import { getDoc } from 'firebase/firestore';
+import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity, FlatList, } from 'react-native';
+import { Input } from 'react-native-elements';
+import { getAuth, } from 'firebase/auth';
+import { doc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore'; 
 import getAllUsers from '../../utils/getAllUsers';
-import StorageImage from '../StorageImage';
 import { useFocusEffect } from '@react-navigation/native';
-import createChatRoom from '../../utils/createChatRoom';
-import { ThemeContext } from '../../hooks/useTheme';
 import { registerForPushNotificationsAsync } from '../../notification';
-import DateDisplay from '../DateDisplay';
-import LoadingScreen from '../LoadingScreen';
+
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { darkTheme, lightTheme } from '../../constants/theme';
+import { Keyboard } from 'react-native';
+import { AntDesign } from '@expo/vector-icons';
+import DisplayUsers from './DisplayUsers';
+
 const auth = getAuth();
 const db = getFirestore();
-interface user{
-	pfp: string, 
-	name: string, 
-	uid: string,
-}
-async function getUser() {
-	const docRef = doc(db, 'Users', `${auth.currentUser.uid}`);
-	const docSnap = await getDoc(docRef);
-	return docSnap.data();
-}
 
 export default function Chats({route, navigation}) {
-	const theme = useContext(ThemeContext);
-	const [currentUser, setCurrentUser] = useState(null);
-	const [allUsers, setAllUsers] = useState(null);
+	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme});
+	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 
-  
+	const [allUsers, setAllUsers] = useState(null);
+	const localInputRef = useRef();
+	
+
+	const keyboardDidHideCallback = () => {
+		// @ts-ignore comment
+		localInputRef.current.blur?.(); 
+	 }
+
 	useFocusEffect(
 		React.useCallback(() => {
-
-			const observer = onSnapshot(doc(db, 'Users', `${auth.currentUser.uid}`), async ()=> {setAllUsers(await getAllUsers())})
+			const keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', keyboardDidHideCallback);
+			const observer = onSnapshot(doc(db, 'Users', `${auth.currentUser.uid}`), async () => {
+				setAllUsers(await getAllUsers())
+			})
 
 			async function getUsers() {
-				setCurrentUser(await getUser());
 				setAllUsers(await getAllUsers());
 			}
-
-			async function getExpoPushToken(){
-				const token = await registerForPushNotificationsAsync();
-				await updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {expoPushToken: token});
-			}
-			getExpoPushToken();
+			
 			getUsers();
 			return () => {
 				observer();
+				keyboardDidHideSubscription?.remove();
 			}
 		}, [])
 	);
 
-
 	return (
-		<ScrollView contentContainerStyle={{flexGrow: 1}}>
-			{allUsers ? (
-				allUsers.map((user, idx: number) => {
-					console.log('user: ', user);
-					return <TouchableOpacity key={idx} onPress={() => {
-						createChatRoom(currentUser.uid, user.uid, navigation);
-					}}>
-						<View  style={[{flexDirection: 'row', alignItems: 'center'}]}>
-							<StorageImage imagePath={user.pfp} style={styles.image} />
-							<View>
-								<Text style={{color: theme.text2.color, fontSize: 16}}>
-									{user.name}
-								</Text>
-								{user.lastMessage.user === currentUser.uid ? (
-									<Text style={{color: theme.text2.color, fontSize: theme.text2.fontSize}}>
-										You: {user.lastMessage.message}{'  '}·{'  '}
-										<DateDisplay time={user.lastMessage.time} style={theme.text2}></DateDisplay>
-									</Text>
-								):(
-									<Text style={{color: theme.text2.color, fontSize: theme.text2.fontSize}}>
-										{user.lastMessage.message}{'  '}{user.lastMessage.time && '·'}{'  '}
-										<DateDisplay time={user.lastMessage.time} style={theme.text2}></DateDisplay>
-									</Text>
-								)}
-							</View>
-						</View>
-					</TouchableOpacity>;
-				})
-			) : (
-				<LoadingScreen></LoadingScreen>
-			)}
-			<StatusBar style="auto" />
+		<>
+			<ScrollView contentContainerStyle={{flexGrow: 1}}>
+			<Input placeholder='Search users...' placeholderTextColor={'#d3d3d3'}
+				
+				ref={(ref) => {
+					localInputRef && (localInputRef.current = ref as any);
+				 }}
+				onFocus={() => {console.log('ONFOCUS')}}
+				onBlur={() => {console.log('ONBLUUUR')}}
+				style={{color: theme.primaryText.color}}
+				inputContainerStyle={styles.searchBar}
+				leftIcon={<AntDesign name="search1" size={16} color={theme.primaryText.color} />}>
+				</Input>
+			<DisplayUsers allUsers={allUsers} navigation={navigation}></DisplayUsers>
 		</ScrollView>
+		</>
 	);
 }
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: '#fff',
-	},
-	image: {
-		width: 60,
-		height: 60,
-		padding: 4,
-		borderRadius: 300,
+	searchBar: {
 		marginLeft: 10,
-		marginRight: 4,
-		marginBottom: 2,
-	},
+		marginRight: 10,
+		marginTop: 10, 
+		fontSize: 15, 
+		borderColor:'#636363',
+		borderWidth: 1, 
+		height: 35, 
+		borderRadius: 30,
+		padding: 10, 
+		marginBottom: -10,
+		alignItems: 'center',
+		verticalAlign: 'middle',
+	}
 });

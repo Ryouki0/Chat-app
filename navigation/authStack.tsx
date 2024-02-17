@@ -8,18 +8,30 @@ import WelcomeScreen from '../Components/authStack/WelcomeScreen';
 import { ThemeContext } from '../hooks/useTheme';
 import { Button } from 'react-native-elements';
 import ThemeChange from '../Components/ThemeChange';
+import { StatusBar, StatusBarStyle } from 'react-native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../state/store';
+import { darkTheme, lightTheme } from '../constants/theme';
 const Stack = createStackNavigator();
 
 export default function AuthStack(){
-    const theme = useContext(ThemeContext);
+    const themeState = useSelector((state: RootState) => {return state.themeSlice.theme});
+    const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
+    let statusBarStyle: StatusBarStyle = 'default';
+    let statusBarColor = 'white';
     let navigationTheme = null;
-    if(theme.isDark){
+    if(themeState === 'darkTheme'){
         navigationTheme = DarkTheme;
+        statusBarStyle='light-content';
+        statusBarColor = 'black';
     }else{
         navigationTheme = DefaultTheme;
+        statusBarStyle = 'dark-content';
+
     }
     return (
         <NavigationContainer theme={navigationTheme}>
+            <StatusBar barStyle={statusBarStyle} backgroundColor={statusBarColor}></StatusBar>
              <Stack.Navigator initialRouteName='WelcomeScreen' >
                 
                 <Stack.Screen name='CreateAccountScreen' component={CreateAccountScreen} options={({ route }) => (
@@ -27,7 +39,7 @@ export default function AuthStack(){
                         backgroundColor: theme.container.backgroundColor,
                     },
                     title: 'Create Account', 
-                    headerTintColor: theme.text.color,
+                    headerTintColor: theme.primaryText.color,
                     headerRight: () => <ThemeChange />
                     })
                 }></Stack.Screen>
@@ -36,7 +48,7 @@ export default function AuthStack(){
                             backgroundColor: theme.container.backgroundColor,
                         },
                         title: 'Welcome', 
-                        headerTintColor: theme.text.color,
+                        headerTintColor: theme.primaryText.color,
                         headerRight: () => <ThemeChange />
                         }
                 )}></Stack.Screen>

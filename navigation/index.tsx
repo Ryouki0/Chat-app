@@ -2,8 +2,7 @@ import react, { useEffect, useState } from 'react';
 import { useAuthentication } from "../hooks/useAuthentication";
 import AuthStack from './authStack';
 import UserStack from './userStack';
-import { User } from 'firebase/auth';
-import { Text } from 'react-native-elements';
+
 import LoadingScreen from '../Components/LoadingScreen';
 export default function RootNavigation(){
     const user = useAuthentication();           //user null by default, undefined if not logged in
@@ -18,5 +17,8 @@ export default function RootNavigation(){
     }, [user])
 
     return loading? <LoadingScreen /> : 
-         user? <UserStack /> : <AuthStack />
+         (user? <>
+            <UserStack /> 
+         </> :
+          <AuthStack />)
 }

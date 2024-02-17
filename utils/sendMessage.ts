@@ -33,6 +33,7 @@ export default async function sendMessage(roomID: string, currentUserID: string,
 						message: message,
 						user: currentUserID,
 						time: new Date(),
+						seen: false,
 					}
 				};
 			}else{
@@ -52,6 +53,7 @@ export default async function sendMessage(roomID: string, currentUserID: string,
 						message: message,
 						user: currentUserID,
 						time: new Date(),
+						seen: false,
 					}
 				};
 			}else{
@@ -63,8 +65,8 @@ export default async function sendMessage(roomID: string, currentUserID: string,
 		await updateDoc(doc(db, 'Users', `${currentUserID}`), {PrivateChatRooms: newChatRooms});
 		await updateDoc(doc(db, 'Users', `${otherUserID}`), {PrivateChatRooms: otherUserNewChatRooms});
 	
-		if(!token){
-			console.log('no device token');
+		if(!token || !otherUserData.signedIn){
+			console.log('no device token or signed out');
 		}else{
 			sendPushNotification(token, currentUserData.Username, message );
 		}

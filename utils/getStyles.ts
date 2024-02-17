@@ -8,8 +8,32 @@ interface message{
     user: string
 }
 
-export default function getStyles(currentUserID: string, messages: message[]){
-	//console.log('messages: ', messages);
+export default function getStyles(currentUserID: string, messages: message[], theme: 'lightTheme' | 'darkTheme'){
+
+	const rightBGColor = theme === 'lightTheme' ? '#a6a6a6' : '#636363';
+
+	const right = {
+		alignSelf:'flex-end', 
+		borderWidth: 1, 
+		padding: 10, 
+		marginBottom: 1, 
+		borderColor: '#636363',
+		borderRadius: 30,
+		marginRight: 20,
+		maxWidth: '75%',
+		backgroundColor: rightBGColor,
+	};
+	const left= {
+		alignSelf: 'flex-start',
+		borderWidth: 1,
+		marginBottom: 1, 
+		padding: 10, 
+		borderRadius: 30, 
+		maxWidth: '75%',
+		borderColor: '#3b3b3b',
+		marginLeft: 44,
+	};
+
 
    
 	const newMessages = messages.map((mess, idx) => {
@@ -50,25 +74,5 @@ export default function getStyles(currentUserID: string, messages: message[]){
 }
 
 
-const right = {
-	alignSelf:'flex-end', 
-	borderWidth: 1, 
-	padding: 10, 
-	marginBottom: 1, 
-	borderColor: '#636363',
-	borderRadius: 30,
-	marginRight: 20,
-	maxWidth: '75%',
-	backgroundColor: '#636363',
-};
-const left= {
-	alignSelf: 'flex-start',
-	borderWidth: 1,
-	marginBottom: 1, 
-	padding: 10, 
-	borderRadius: 30, 
-	maxWidth: '75%',
-	borderColor: '#3b3b3b',
-	marginLeft: 44,
-};
+
 

@@ -2,23 +2,31 @@ import React, { useContext } from 'react';
 import {useState} from 'react';
 import {Text, View,} from 'react-native';
 import {Button} from 'react-native-elements';
-import { User, getAuth } from 'firebase/auth';
+import {getAuth } from 'firebase/auth';
 import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import uuid from 'react-native-uuid';
 import { getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore';
 import { useFocusEffect } from '@react-navigation/native';
 import StorageImage from '../StorageImage';
-import { ThemeContext } from '../../hooks/useTheme';
 import { DocumentData } from 'firebase/firestore';
+import TestCounter from '../TestCounter';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { lightTheme, darkTheme } from '../../constants/theme';
+
 const storage = getStorage();
 const auth = getAuth();
 const db = getFirestore();
+
 export default function Profile({route, navigation}) {
-	const theme = useContext(ThemeContext);
+	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme})
+	console.log('themestate: ', themeState);
+	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const [userPfp, setUserPfp] = useState<string>(null);
 	const [userId, setUserId] = useState<string>(null);
 	const [userData, setUserData] = useState<DocumentData>(null);
+
 	useFocusEffect(
 		React.useCallback(() => {
 			setUserId(auth.currentUser.uid);
@@ -58,16 +66,18 @@ export default function Profile({route, navigation}) {
 	async function signOut(){
 		try{
 			await auth.signOut();
+			updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: false})
 			console.log('signed out');
 		}catch(err){
 			console.log('error signing out: ', err);
 		}
 	}
 
-	return <View style={{alignItems: 'center'}}>
-		{userData && <Text style={{color: theme.text.color, fontSize: 18, margin: 5}}>{userData.Username}</Text>}
+	return <View style={[{alignItems: 'center', }, theme.container]}>
+		{userData && <Text style={theme.primaryText}>{userData.Username}</Text>}
 		<StorageImage imagePath={userPfp} style={{width: 200, height: 200, borderRadius: 200}}></StorageImage>
 		<Button title='sign out' onPress={() => {signOut();}}></Button>
 		<Button title='Change pfp' onPress={() => {pickImage();}}></Button>
+		<TestCounter></TestCounter>
 	</View>;
 }

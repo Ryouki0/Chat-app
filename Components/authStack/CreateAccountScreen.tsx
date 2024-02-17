@@ -7,12 +7,17 @@ import { Input } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, addDoc, getFirestore, collection, setDoc, getDoc, QuerySnapshot, getDocs } from 'firebase/firestore';
+import { doc, addDoc, getFirestore, collection, setDoc, getDoc, QuerySnapshot, getDocs, updateDoc } from 'firebase/firestore';
 import { ThemeContext } from '../../hooks/useTheme';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { darkTheme, lightTheme } from '../../constants/theme';
+import { registerForPushNotificationsAsync } from '../../notification';
 const auth = getAuth();
 const db = getFirestore();
 export default function CreateAccountScreen() {
-	const theme = useContext(ThemeContext);
+	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 	const [username, setUsername] = useState('');
@@ -33,13 +38,17 @@ export default function CreateAccountScreen() {
 		}
 		try {
 			const createdUser = await createUserWithEmailAndPassword(auth, email, password);
+			const token = registerForPushNotificationsAsync();
 			await setDoc(doc(db, 'Users', `${createdUser.user.uid}`), {
 				Username: username,
 				PrivateChatRooms: [],
 				CreatedAt: new Date(),
 				uid: `${createdUser.user.uid}`,
 				pfp: '',
+				expoPushToken: token,
+				signedIn: true,
 			});
+			
 		}catch(err){
 			setError({isError: true, message: err.message});
 		}
@@ -67,20 +76,21 @@ export default function CreateAccountScreen() {
 
 			<Input 
 				onChangeText={(text) => {
-					setUsername(text);}}
+					setUsername(text);
+				}}
 				placeholder='Username'
 				containerStyle={styles.input}
-				style={{fontSize: 14, color: theme.text.color}}
+				style={{fontSize: 14, color: theme.primaryText.color}}
 			/>
 
 			<Input onChangeText={(text) => {
 				setEmail(text);
 			}}
 			placeholder='Email' leftIcon={
-				<Icon name='envelope' size={16} color={theme.text.color}/>
+				<Icon name='envelope' size={16} color={theme.primaryText.color}/>
 			}
 			containerStyle={styles.input} 
-			style={{fontSize: 14, color: theme.text.color}}
+			style={{fontSize: 14, color: theme.primaryText.color}}
 			/>
       
 			<Input 
@@ -89,10 +99,10 @@ export default function CreateAccountScreen() {
 				placeholder='Password'
 				secureTextEntry={true}
 				leftIcon={
-					<Icon name='key' size={16} color={theme.text.color}/>
+					<Icon name='key' size={16} color={theme.primaryText.color}/>
 				}
 				containerStyle={styles.input}
-				style={{fontSize: 14, color: theme.text.color}}
+				style={{fontSize: 14, color: theme.primaryText.color}}
 			/>
 
 			<Button title='Sign up' 
