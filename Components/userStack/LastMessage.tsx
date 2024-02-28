@@ -16,12 +16,12 @@ export default function LastMessage({message, currentUserID, otherUserPfp, setTa
 		return -1;
 	}
 	
-	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme})
+	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme;});
 
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 
 	return <>
-		{message.user === currentUserID ? (
+		{message.senderId === currentUserID ? (
 			message.seen ? (
 				<View style={{alignItems: 'flex-end', justifyContent: 'flex-end', flexDirection: 'row'}} >
 					<Text style={[message.extraStyles, {marginRight: 20-iconSize}, {color: theme.primaryText.color}]}

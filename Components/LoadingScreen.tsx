@@ -1,6 +1,5 @@
 import React, {useContext} from 'react';
 import {View, Text} from 'react-native';
-import { ThemeContext } from '../hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { darkTheme, lightTheme } from '../constants/theme';

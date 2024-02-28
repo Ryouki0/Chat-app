@@ -5,5 +5,5 @@ export interface Message {
     message: string,
     seen: boolean,
     time: Timestamp,
-    user: string,
+    senderId: string,
 }

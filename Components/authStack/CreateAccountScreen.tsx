@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { Button } from 'react-native-elements';
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { doc, addDoc, getFirestore, collection, setDoc, getDoc, QuerySnapshot, getDocs, updateDoc } from 'firebase/firestore';
-import { ThemeContext } from '../../hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
@@ -38,10 +37,10 @@ export default function CreateAccountScreen() {
 		}
 		try {
 			const createdUser = await createUserWithEmailAndPassword(auth, email, password);
-			const token = registerForPushNotificationsAsync();
+			const token = await registerForPushNotificationsAsync();
 			await setDoc(doc(db, 'Users', `${createdUser.user.uid}`), {
 				Username: username,
-				PrivateChatRooms: [],
+				mutedRooms: [],
 				CreatedAt: new Date(),
 				uid: `${createdUser.user.uid}`,
 				pfp: '',
@@ -51,6 +50,7 @@ export default function CreateAccountScreen() {
 			
 		}catch(err){
 			setError({isError: true, message: err.message});
+			console.log('err: ', err);
 		}
 	}
 

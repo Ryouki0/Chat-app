@@ -5,8 +5,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import CreateAccountScreen from '../Components/authStack/CreateAccountScreen';
 import WelcomeScreen from '../Components/authStack/WelcomeScreen';
-import { ThemeContext } from '../hooks/useTheme';
-import { Button } from 'react-native-elements';
 import ThemeChange from '../Components/ThemeChange';
 import { StatusBar, StatusBarStyle } from 'react-native';
 import { useSelector } from 'react-redux';

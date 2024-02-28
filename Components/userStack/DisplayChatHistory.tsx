@@ -1,0 +1,98 @@
+import { Timestamp } from 'firebase/firestore';
+import React from 'react';
+import { Text, View } from 'react-native';
+import { TouchableOpacity } from 'react-native';
+import StorageImage from '../StorageImage';
+import { images } from '../../constants/images';
+import { Room } from '../../models/room';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../state/store';
+import { darkTheme, lightTheme } from '../../constants/theme';
+import createChatRoom from '../../utils/createChatRoom';
+import { getAuth } from 'firebase/auth';
+import DateDisplay from '../DateDisplay';
+import { AntDesign } from '@expo/vector-icons';
+
+const auth = getAuth();
+
+export default function DisplayChatHistory({chatHistory, navigation}){
+
+	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
+	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
+
+    
+	return <>
+		{chatHistory ? (
+			chatHistory.map((room: Room) => {
+				return <TouchableOpacity key={room.otherUser.uid} 
+					style={{
+						alignItems: 'center', flexDirection: 'row',
+					}}
+					onPress={() => {
+						navigation.navigate('ChatRoom', {currentUserID: auth.currentUser.uid, otherUserID: room.otherUser.uid, roomID: room.chatRoomId});
+					}}>
+					<View style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
+						<StorageImage imagePath={room.otherUser.pfp} style={images.pfp}></StorageImage>
+						<View>
+							<Text style={theme.primaryText}>
+								{room.otherUser.Username}
+							</Text>
+							{room.lastMessage.senderId === auth.currentUser.uid ? (
+								<Text style={theme.secondaryText}>
+									{room.lastMessage.message.length > 15 ? (
+										<Text style={theme.secondaryText}>
+                                        You: {room.lastMessage.message.slice(0, 15)}{'... • '}
+										</Text>
+									) : (
+										<Text style={theme.secondaryText}>
+                                        You: {room.lastMessage.message}{' • '}
+										</Text>
+									)}
+									<DateDisplay time={room.lastMessage.time} style={{...theme.secondaryText}} ></DateDisplay>
+								</Text>
+							) : (
+								<Text style={theme.secondaryText}>
+									{room.lastMessage.message.length > 18 ? (
+										<>
+											{room.lastMessage.seen ? (
+												<Text style={theme.secondaryText}>
+													{room.lastMessage.message.slice(0,18)}{'... • '}
+												</Text>
+											) : (
+												<Text style={[theme.secondaryText, {fontWeight: 'bold'}]}>
+													{room.lastMessage.message.slice(0,18)}{'... • '}
+												</Text>
+											)}
+										</>
+									) : (
+										<>
+											{room.lastMessage.seen ? (
+												<Text style={theme.secondaryText}>
+													{room.lastMessage.message}{' • '}
+												</Text>
+											) : (
+												<Text style={[theme.secondaryText, {fontWeight: 'bold'}]}>
+													{room.lastMessage.message}{' • '}
+												</Text>
+											)}
+										</>
+									)}
+									<DateDisplay time={room.lastMessage.time} style={{...theme.secondaryText}} ></DateDisplay>
+								</Text>
+							)} 
+						</View>
+					</View>
+					{room.lastMessage.senderId === auth.currentUser.uid ? (
+						room.lastMessage.seen ? (
+							<StorageImage imagePath={room.otherUser.pfp} style={[images.pfp, {width: 13, height: 13}]} />
+						) : (
+							<AntDesign name='checkcircle' color={theme.secondaryText.color} size={13} style={{paddingBottom: -20, paddingRight: 5}}></AntDesign>
+						)
+					) : (<></>)}
+				</TouchableOpacity>;
+			})
+		) : (<></>)}
+        
+	</>; 
+    
+}

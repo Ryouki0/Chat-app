@@ -4,25 +4,28 @@ import { useState } from 'react';
 import { getFirestore, onSnapshot } from 'firebase/firestore';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { ScrollView, Text, StyleSheet, View } from 'react-native';
-import { Input } from 'react-native-elements';
-import sendMessage from '../../utils/sendMessage';
-import getStyles from '../../utils/getStyles';
+import getStyles from '../../../utils/getStyles';
 import { useFocusEffect } from '@react-navigation/native';
-import { AntDesign } from '@expo/vector-icons';
-import LastMessage from './LastMessage';
-import DateDisplay from '../DateDisplay';
-import { Message } from '../../models/message';
+import LastMessage from '../LastMessage';
+import DateDisplay from '../../DateDisplay';
+import { Message } from '../../../models/message';
 import { useSelector } from 'react-redux';
-import { darkTheme, lightTheme } from '../../constants/theme';
-import { RootState } from '../../state/store';
-import { FontAwesome } from '@expo/vector-icons';
+import { darkTheme, lightTheme } from '../../../constants/theme';
+import { RootState } from '../../../state/store';
+import ChatroomSettings from './ChatroomSettings';
+import InputBar from './InputBar';
+import EmojiPicker from 'rn-emoji-picker';
+import {emojis} from 'rn-emoji-picker/dist/data';
+import updateQuickReaction from '../../../utils/updateQuickReaction';
+import LoadingScreen from '../../LoadingScreen';
+import { Emoji } from 'rn-emoji-picker/dist/interfaces';
 const db = getFirestore();
 
 let isScrollAtBottom = true;
 
 export default function ChatRoom({route, navigation}) {
-	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme})
-
+	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme;});
+	const chatRoomSettingState = useSelector((state: RootState) => {return state.chatRoomSettingSlice.isOn});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const roomID = route.params.roomID;
 	const currentUserID = route.params.currentUserID;
@@ -30,9 +33,11 @@ export default function ChatRoom({route, navigation}) {
 
 
 	const [tappedMessage, setTappedMessage] = useState(null);
-	const [messToSend, setMessToSend] = useState(null);
+	const [quickReaction, setQuickReaction] = useState<Emoji | undefined>()
 	const [messages, setMessages] = useState(null);
 	const [otherUserPfp, setOtherUserPfp] = useState(null);
+    const [emojiPicker, setEmojiPicker] = useState(false);
+
 	useFocusEffect(
 		React.useCallback(() => {
 			const observer = onSnapshot(doc(db, 'PrivateChatRooms', `${roomID}`), () => {getMessages();});
@@ -43,12 +48,14 @@ export default function ChatRoom({route, navigation}) {
 			}
 
 			async function getMessages() {
-				const messages = (await getDoc(doc(db, 'PrivateChatRooms', `${roomID}`))).data().Messages;
+				const roomData = (await getDoc(doc(db, 'PrivateChatRooms', `${roomID}`))).data();
+				setQuickReaction(roomData.quickReaction);
+				const messages = roomData.Messages;
 				if(messages.length < 1){
 					//console.log('getMessages: ', messages);
 					return -1;
 				}
-				if(messages[messages.length-1].user === otherUserID){
+				if(messages[messages.length-1].senderId === otherUserID){
 					const newMessages = messages.map((mess:Message, idx:number) => {
 						if(idx === messages.length-1){
 							return {
@@ -56,12 +63,12 @@ export default function ChatRoom({route, navigation}) {
 								message: mess.message,
 								seen: true,
 								time: mess.time,
-								user: mess.user,
-							}
+								senderId: mess.senderId,
+							};
 						}else{
 							return mess;
 						}
-					})
+					});
 					updateDoc(doc(db, 'PrivateChatRooms', `${roomID}`), {Messages: newMessages});
 					
 				}
@@ -72,7 +79,7 @@ export default function ChatRoom({route, navigation}) {
 			getPfp();
 			return () => {observer();
 				setOtherUserPfp(null);
-			setMessages(null)};
+				setMessages(null);};
 		}, [otherUserID, themeState])
 	);
         
@@ -83,10 +90,16 @@ export default function ChatRoom({route, navigation}) {
 	};
          
 
-	console.log(roomID, 'currentID: ', currentUserID, 'otherUserID', otherUserID);
+	
 	return <>
+	{chatRoomSettingState && 
+	<View style={{alignItems: 'flex-end'}}>
+		<ChatroomSettings roomId={roomID} setEmojiPicker={setEmojiPicker} quickReaction={quickReaction}></ChatroomSettings>
+	</View>}
+		
 		<ScrollView 
 			ref={ref => {this.scrollView = ref;}}
+			style={{backgroundColor: theme.container.backgroundColor}}
 			onScroll={({nativeEvent}) => {
 				if (isCloseToBottom(nativeEvent)) {
 					isScrollAtBottom = true;
@@ -110,10 +123,8 @@ export default function ChatRoom({route, navigation}) {
 							<></>
 						)}
 						{messages.length === idx + 1 ? (
-							<>
 								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp} 
 									setTappedMessage={setTappedMessage}></LastMessage>
-							</>
 						) : (
 							mess.userChange ? (
 								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp}
@@ -129,35 +140,20 @@ export default function ChatRoom({route, navigation}) {
 							)
 						)}
 					</View>; 
-
 				})
 			) : (<></>)}
 		</ScrollView>
+		
+	<InputBar roomId={roomID} otherUserId={otherUserID} quickReaction={quickReaction}></InputBar>
 
-		<Input value={messToSend} placeholder='Type something...' style={{color: theme.primaryText.color}}
-		 	rightIcon={<FontAwesome name="send" size={18} color={theme.primaryText.color} onPress={() => {
-				sendMessage(roomID, currentUserID, otherUserID, messToSend);
-				setMessToSend('');
-			}}/>}
-			inputContainerStyle={styles.inputBar}
-			onChangeText={(text) => {
-			setMessToSend(text);
-        }} onSubmitEditing={() => {
-			sendMessage(roomID, currentUserID, otherUserID, messToSend);
-			setMessToSend('');
-		}}></Input>
+	{emojiPicker && <View style={{flex:1, width: '100%', position:'absolute', height: '100%'}}>
+		<EmojiPicker 
+            emojis={emojis}
+            loading={false}
+            autoFocus={false}
+            darkMode={true}
+            perLine={7}
+            onSelect={(emoji) => {updateQuickReaction(roomID, emoji); setEmojiPicker(false)}}></EmojiPicker>
+		</View>}
 	</>;
-}
-const styles = {
-	inputBar: {
-		marginLeft: 10,
-		marginTop: 10, 
-		fontSize: 15, 
-		borderColor:'#636363',
-		borderWidth: 1, 
-		height: 35, 
-		borderRadius: 30,
-		padding: 10, 
-		marginBottom: -10,
-	}
 }

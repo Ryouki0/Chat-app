@@ -1,71 +1,111 @@
 
-import React, { useContext, useEffect, useState, useRef, useMemo } from 'react';
+import React, { useContext, useEffect, useState, useRef, useMemo, SetStateAction } from 'react';
 import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity, FlatList, } from 'react-native';
 import { Input } from 'react-native-elements';
 import { getAuth, } from 'firebase/auth';
-import { doc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore'; 
+import { DocumentReference, doc, getDoc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore'; 
 import getAllUsers from '../../utils/getAllUsers';
 import { useFocusEffect } from '@react-navigation/native';
-import { registerForPushNotificationsAsync } from '../../notification';
-
-import { useSelector } from 'react-redux';
+import { userData } from '../../models/userData';
+import getChatHistory from '../../utils/getChatHistory';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
 import { Keyboard } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import DisplayUsers from './DisplayUsers';
-
+import DisplayChatHistory from './DisplayChatHistory';
+import { Room } from '../../models/room';
+import { User } from '../../models/userData';
+import { setUserData } from '../../state/slices/userDataSlice';
 const auth = getAuth();
 const db = getFirestore();
 
 export default function Chats({route, navigation}) {
-	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme});
+
+	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 
+	const chatRoomQuery = useSelector((state: RootState) => {return state.chatRoomSlice.chatRoomQuery});
+	const [isSearching, setisSearching] = useState(false);
 	const [allUsers, setAllUsers] = useState(null);
+	const [usersToDisplay, setUsersToDisplay] = useState(null);
+	const [chatHistory, setChatHistory] = useState<Room[]>(null);
+	const userDataState = useSelector((state:RootState) => {return state.userDataSlice});
+	const dispatch = useDispatch();
 	const localInputRef = useRef();
 	
+	function onSearch(searchInput?: string) {
+		console.log('search input: ', searchInput);
+		
+		const filteredUsers = allUsers.filter((user: User) => user.name.toLowerCase().includes(searchInput.toLowerCase()));
+		setUsersToDisplay(filteredUsers);
+	}
+
+	function onFocus(){
+		setUsersToDisplay(allUsers);
+		setisSearching(true);
+	}
+
+	function onBlur(){
+		setUsersToDisplay(chatHistory);
+		setisSearching(false);
+	}
 
 	const keyboardDidHideCallback = () => {
 		// @ts-ignore comment
-		localInputRef.current.blur?.(); 
-	 }
+		localInputRef.current?.blur?.(); 
+	 };
 
 	useFocusEffect(
 		React.useCallback(() => {
 			const keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', keyboardDidHideCallback);
-			const observer = onSnapshot(doc(db, 'Users', `${auth.currentUser.uid}`), async () => {
-				setAllUsers(await getAllUsers())
-			})
+			let chatHistorySubscription = null;
+			if(chatRoomQuery){
+				chatHistorySubscription = onSnapshot(chatRoomQuery, async () =>{console.log('new message'); setChatHistory(await getChatHistory())});
+			}
+			async function getUserData(){
+				const userData = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data() as userData;
+				console.log('userData in getUserData: ', userData);
+				dispatch(setUserData(userData));
+			}
 
 			async function getUsers() {
-				setAllUsers(await getAllUsers());
+				if(!allUsers){
+					setAllUsers(await getAllUsers());
+				}
+				if(!chatHistory){
+					setChatHistory(await getChatHistory());
+				}
 			}
-			
+			getUserData();
 			getUsers();
 			return () => {
-				observer();
 				keyboardDidHideSubscription?.remove();
-			}
+				chatHistorySubscription?.();
+			};
 		}, [])
 	);
 
 	return (
 		<>
-			<ScrollView contentContainerStyle={{flexGrow: 1}}>
-			<Input placeholder='Search users...' placeholderTextColor={'#d3d3d3'}
+			<ScrollView contentContainerStyle={{flexGrow: 1}} keyboardShouldPersistTaps='handled'>
+				<Input placeholder='Search users...' placeholderTextColor={'#d3d3d3'}
 				
-				ref={(ref) => {
-					localInputRef && (localInputRef.current = ref as any);
+					ref={(ref) => {
+						localInputRef && (localInputRef.current = ref as any);
 				 }}
-				onFocus={() => {console.log('ONFOCUS')}}
-				onBlur={() => {console.log('ONBLUUUR')}}
-				style={{color: theme.primaryText.color}}
-				inputContainerStyle={styles.searchBar}
-				leftIcon={<AntDesign name="search1" size={16} color={theme.primaryText.color} />}>
+					onChangeText={(search) => {onSearch(search);}}
+					onFocus={() => {onFocus();}}
+					onBlur={() => {onBlur();}}
+					style={{color: theme.primaryText.color}}
+					inputContainerStyle={styles.searchBar}
+					leftIcon={<AntDesign name="search1" size={16} color={theme.primaryText.color} />}>
 				</Input>
-			<DisplayUsers allUsers={allUsers} navigation={navigation}></DisplayUsers>
-		</ScrollView>
+				{isSearching ? (
+					<DisplayUsers navigation={navigation} usersToDisplay={usersToDisplay}></DisplayUsers>
+				) : (<DisplayChatHistory chatHistory = {chatHistory} navigation={navigation}></DisplayChatHistory>)}
+			</ScrollView>
 		</>
 	);
 }

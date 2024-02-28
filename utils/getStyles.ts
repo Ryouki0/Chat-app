@@ -1,14 +1,9 @@
 
 
 
-interface message{
-    message: string,
-    seen: boolean,
-    time: Date,
-    user: string
-}
+import { Message } from "../models/message";
 
-export default function getStyles(currentUserID: string, messages: message[], theme: 'lightTheme' | 'darkTheme'){
+export default function getStyles(currentUserID: string, messages: Message[], theme: 'lightTheme' | 'darkTheme'){
 
 	const rightBGColor = theme === 'lightTheme' ? '#a6a6a6' : '#636363';
 
@@ -36,16 +31,16 @@ export default function getStyles(currentUserID: string, messages: message[], th
 
 
    
-	const newMessages = messages.map((mess, idx) => {
+	const newMessages = messages.map((mess: Message, idx) => {
 		const extraStyles = [];
 		let hasStyle = false;
 		let userChange = false;
-		if(mess.user === currentUserID){
-			if(messages[idx - 1] != undefined && messages[idx-1].user === currentUserID) {
+		if(mess.senderId === currentUserID){
+			if(messages[idx - 1] != undefined && messages[idx-1].senderId === currentUserID) {
 				extraStyles.push({borderTopRightRadius: 10, ...right});
 				hasStyle= true;
 			}
-			if(messages[idx + 1] != undefined && messages[idx +1 ].user === currentUserID){
+			if(messages[idx + 1] != undefined && messages[idx +1 ].senderId === currentUserID){
 				extraStyles.push({borderBottomRightRadius: 10, ...right});
 				hasStyle = true;
 			}
@@ -54,11 +49,11 @@ export default function getStyles(currentUserID: string, messages: message[], th
 			}
 		}
 		else{
-			if(messages[idx - 1] != undefined && messages[idx-1].user != currentUserID){
+			if(messages[idx - 1] != undefined && messages[idx-1].senderId != currentUserID){
 				extraStyles.push({borderTopLeftRadius: 10, ...left});
 				hasStyle = true;
 			}
-			if(messages[idx + 1] != undefined && messages[idx + 1].user != currentUserID){
+			if(messages[idx + 1] != undefined && messages[idx + 1].senderId != currentUserID){
 				extraStyles.push({borderBottomLeftRadius: 10, ...left});
 				hasStyle = true;
 			}else{

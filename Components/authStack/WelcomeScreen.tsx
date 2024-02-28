@@ -7,7 +7,6 @@ import { useState } from 'react';
 import { Button, Input, } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { ThemeContext, Theme } from '../../hooks/useTheme';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { lightColors } from '@rneui/base';
@@ -34,7 +33,7 @@ export default function WelcomeScreen({route, navigation}) {
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
 			const token = registerForPushNotificationsAsync();
-			updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: true, expoPushToken: token})
+			//updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: true, expoPushToken: token})
 		}catch(err){
 			setError({isError: true, message: err.message});
 		}
