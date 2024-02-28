@@ -1,5 +1,4 @@
 import { getAuth } from 'firebase/auth';
-import { Timestamp } from 'firebase/firestore';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import createChatRoom from '../../utils/createChatRoom';
@@ -8,14 +7,15 @@ import { Text } from 'react-native-elements';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
-import DateDisplay from '../DateDisplay';
-import LoadingScreen from '../LoadingScreen';
-import { AntDesign } from '@expo/vector-icons';
 import { images } from '../../constants/images';
+import { User } from '../../models/userData';
 const auth = getAuth();
 
 
-export default function DisplayUsers({navigation, usersToDisplay}){
+export default function DisplayUsers({navigation, usersToDisplay}: React.PropsWithChildren<{
+	navigation: any,
+	usersToDisplay: User[],
+}>){
     
 	const currentUser = auth.currentUser;
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});

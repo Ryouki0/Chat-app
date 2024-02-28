@@ -1,4 +1,3 @@
-import { Timestamp } from 'firebase/firestore';
 import React from 'react';
 import { Text, View } from 'react-native';
 import { TouchableOpacity } from 'react-native';
@@ -8,14 +7,16 @@ import { Room } from '../../models/room';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
-import createChatRoom from '../../utils/createChatRoom';
 import { getAuth } from 'firebase/auth';
 import DateDisplay from '../DateDisplay';
 import { AntDesign } from '@expo/vector-icons';
-
+import {BottomTabNavigationProp} from '@react-navigation/bottom-tabs';
 const auth = getAuth();
 
-export default function DisplayChatHistory({chatHistory, navigation}){
+export default function DisplayChatHistory({chatHistory, navigation}: React.PropsWithChildren<{
+	chatHistory: Room[],
+	navigation: any,
+}>){
 
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;

@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice } from '@reduxjs/toolkit';
 
 export interface ThemeState{
     theme: 'lightTheme' | 'darkTheme';
@@ -8,14 +8,14 @@ export interface ThemeState{
 const initialState: ThemeState = {theme : 'lightTheme'};
 
 const themeSlice = createSlice({
-    name: 'theme',
-    initialState: initialState,
-    reducers: {
-        themeChange: (state) => {
-            state.theme === 'lightTheme' ? state.theme = 'darkTheme' : state.theme ='lightTheme';
-        }
-    }
-})
+	name: 'theme',
+	initialState: initialState,
+	reducers: {
+		themeChange: (state) => {
+			state.theme === 'lightTheme' ? state.theme = 'darkTheme' : state.theme ='lightTheme';
+		}
+	}
+});
 
 export const {themeChange} = themeSlice.actions;
 

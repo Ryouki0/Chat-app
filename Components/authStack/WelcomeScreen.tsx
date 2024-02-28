@@ -1,7 +1,5 @@
 
-
-import { StatusBar } from 'expo-status-bar';
-import React, { useContext } from 'react';
+import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 import { Button, Input, } from 'react-native-elements';
@@ -9,14 +7,13 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
-import { lightColors } from '@rneui/base';
 import { darkTheme, lightTheme } from '../../constants/theme';
 import { doc, getFirestore, updateDoc } from 'firebase/firestore';
 import { registerForPushNotificationsAsync } from '../../notification';
-const auth = getAuth();
 const db = getFirestore();
-export default function WelcomeScreen({route, navigation}) {
-	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+const auth = getAuth();
+export default function WelcomeScreen({ navigation }) {
+	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
 	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -32,9 +29,10 @@ export default function WelcomeScreen({route, navigation}) {
 		}
 		try {
 			await signInWithEmailAndPassword(auth, email, password);
-			const token = registerForPushNotificationsAsync();
-			//updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: true, expoPushToken: token})
+			const token = await registerForPushNotificationsAsync();
+			updateDoc(doc(db, 'Users', `${auth.currentUser.uid}`), {signedIn: true, expoPushToken: token});
 		}catch(err){
+			console.log('error in signIn: ', err);
 			setError({isError: true, message: err.message});
 		}
 	}
@@ -51,7 +49,7 @@ export default function WelcomeScreen({route, navigation}) {
 					color={theme.primaryText.color} />
 			}
 			containerStyle={styles.input} 
-			 style={{fontSize: 14, color: theme.primaryText.color}}/>
+			style={{fontSize: 14, color: theme.primaryText.color}}/>
       
 			<Input 
 				onChangeText={(text) => {
@@ -66,8 +64,8 @@ export default function WelcomeScreen({route, navigation}) {
 			/>
 
 			<Text style={{color: theme.primaryText.color, marginBottom: 10, width: '70%'}}>
-				Don't have an account? {'\t'}
-				<Text style={{color: '#007FFF', fontStyle: 'italic'}}onPress={() => {navigation.navigate('CreateAccountScreen')}}>
+				Don&apos;t have an account? {'\t'}
+				<Text style={{color: '#007FFF', fontStyle: 'italic'}}onPress={() => {navigation.navigate('CreateAccountScreen');}}>
 					Sign up
 				</Text>
 			</Text>

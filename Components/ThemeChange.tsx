@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';

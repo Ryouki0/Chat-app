@@ -3,9 +3,6 @@ import {useState} from 'react';
 import {Text, View,} from 'react-native';
 import {Button} from 'react-native-elements';
 import {getAuth } from 'firebase/auth';
-import * as ImagePicker from 'expo-image-picker';
-import { getStorage, ref, uploadBytesResumable } from 'firebase/storage';
-import uuid from 'react-native-uuid';
 import { getFirestore, updateDoc, doc, getDoc } from 'firebase/firestore';
 import StorageImage from '../StorageImage';
 import { useSelector } from 'react-redux';
@@ -13,16 +10,14 @@ import { RootState } from '../../state/store';
 import { lightTheme, darkTheme } from '../../constants/theme';
 import { pickImage } from '../../utils/pickImage';
 
-const storage = getStorage();
 const auth = getAuth();
 const db = getFirestore();
 
 export default function Profile() {
 	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme;});
-	const userData = useSelector((state: RootState) => {return state.userDataSlice});
+	const userData = useSelector((state: RootState) => {return state.userDataSlice;});
 	const userId = userData.uid;
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
-	const [recent, setRecent] = useState([]);
 	const [userPfp, setUserPfp] = useState(userData.pfp);
 	const chatRoomState = useSelector((state: RootState) => {return state.chatRoomSlice.chatRoomIds;});
 

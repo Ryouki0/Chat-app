@@ -1,9 +1,9 @@
 
-import React, { useContext, useEffect } from 'react';
+import React from 'react';
 import { useState } from 'react';
 import { getFirestore, onSnapshot } from 'firebase/firestore';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { ScrollView, Text, StyleSheet, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import getStyles from '../../../utils/getStyles';
 import { useFocusEffect } from '@react-navigation/native';
 import LastMessage from '../LastMessage';
@@ -17,26 +17,26 @@ import InputBar from './InputBar';
 import EmojiPicker from 'rn-emoji-picker';
 import {emojis} from 'rn-emoji-picker/dist/data';
 import updateQuickReaction from '../../../utils/updateQuickReaction';
-import LoadingScreen from '../../LoadingScreen';
 import { Emoji } from 'rn-emoji-picker/dist/interfaces';
+import { lastMessage } from '../../../models/lastMessage';
 const db = getFirestore();
 
 let isScrollAtBottom = true;
 
-export default function ChatRoom({route, navigation}) {
+export default function ChatRoom({route}: React.PropsWithChildren<any>) {
 	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme;});
-	const chatRoomSettingState = useSelector((state: RootState) => {return state.chatRoomSettingSlice.isOn});
+	const chatRoomSettingState = useSelector((state: RootState) => {return state.chatRoomSettingSlice.isOn;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const roomID = route.params.roomID;
 	const currentUserID = route.params.currentUserID;
 	const otherUserID = route.params.otherUserID;
 
 
-	const [tappedMessage, setTappedMessage] = useState(null);
-	const [quickReaction, setQuickReaction] = useState<Emoji | undefined>()
-	const [messages, setMessages] = useState(null);
+	const [tappedMessage, setTappedMessage] = useState<string>(null);
+	const [quickReaction, setQuickReaction] = useState<Emoji | undefined>();
+	const [messages, setMessages] = useState<lastMessage[]>(null);
 	const [otherUserPfp, setOtherUserPfp] = useState(null);
-    const [emojiPicker, setEmojiPicker] = useState(false);
+	const [emojiPicker, setEmojiPicker] = useState(false);
 
 	useFocusEffect(
 		React.useCallback(() => {
@@ -52,7 +52,6 @@ export default function ChatRoom({route, navigation}) {
 				setQuickReaction(roomData.quickReaction);
 				const messages = roomData.Messages;
 				if(messages.length < 1){
-					//console.log('getMessages: ', messages);
 					return -1;
 				}
 				if(messages[messages.length-1].senderId === otherUserID){
@@ -89,10 +88,8 @@ export default function ChatRoom({route, navigation}) {
           contentSize.height - paddingToBottom;
 	};
          
-
-	
 	return <>
-	{chatRoomSettingState && 
+		{chatRoomSettingState && 
 	<View style={{alignItems: 'flex-end'}}>
 		<ChatroomSettings roomId={roomID} setEmojiPicker={setEmojiPicker} quickReaction={quickReaction}></ChatroomSettings>
 	</View>}
@@ -113,8 +110,7 @@ export default function ChatRoom({route, navigation}) {
 			scrollEventThrottle={16}>
 
 			{messages ? (
-				messages.map((mess, idx: number) => {
-					//console.log('mess: ', mess);
+				messages.map((mess: lastMessage, idx: number) => {
                
 					return <View key={mess.id} >
 						{tappedMessage === mess.id ? (
@@ -123,15 +119,15 @@ export default function ChatRoom({route, navigation}) {
 							<></>
 						)}
 						{messages.length === idx + 1 ? (
-								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp} 
-									setTappedMessage={setTappedMessage}></LastMessage>
+							<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp} 
+								setTappedMessage={setTappedMessage}></LastMessage>
 						) : (
 							mess.userChange ? (
 								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp}
 									setTappedMessage={setTappedMessage} ></LastMessage>
 							) : (
 								<Text style={[mess.extraStyles, {color: theme.primaryText.color}]} onPress={() => {
-									setTappedMessage((messId) => {if(messId === mess.id){
+									setTappedMessage((messId: string) => {if(messId === mess.id){
 										return null;
 									}else{
 										return mess.id;
@@ -144,16 +140,16 @@ export default function ChatRoom({route, navigation}) {
 			) : (<></>)}
 		</ScrollView>
 		
-	<InputBar roomId={roomID} otherUserId={otherUserID} quickReaction={quickReaction}></InputBar>
+		<InputBar roomId={roomID} otherUserId={otherUserID} quickReaction={quickReaction}></InputBar>
 
-	{emojiPicker && <View style={{flex:1, width: '100%', position:'absolute', height: '100%'}}>
-		<EmojiPicker 
-            emojis={emojis}
-            loading={false}
-            autoFocus={false}
-            darkMode={true}
-            perLine={7}
-            onSelect={(emoji) => {updateQuickReaction(roomID, emoji); setEmojiPicker(false)}}></EmojiPicker>
+		{emojiPicker && <View style={{flex:1, width: '100%', position:'absolute', height: '100%'}}>
+			<EmojiPicker 
+				emojis={emojis}
+				loading={false}
+				autoFocus={false}
+				darkMode={true}
+				perLine={7}
+				onSelect={(emoji) => {updateQuickReaction(roomID, emoji); setEmojiPicker(false);}}></EmojiPicker>
 		</View>}
 	</>;
 }

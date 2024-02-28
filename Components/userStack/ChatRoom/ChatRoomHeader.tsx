@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import StorageImage from '../../StorageImage';
 import { Text } from 'react-native';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
@@ -8,7 +8,6 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../../state/store';
 import { darkTheme, lightTheme } from '../../../constants/theme';
 import { AntDesign } from '@expo/vector-icons';
-import ChatroomSettings from './ChatroomSettings';
 
 
 const db = getFirestore();

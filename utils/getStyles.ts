@@ -1,7 +1,8 @@
 
 
 
-import { Message } from "../models/message";
+import { lastMessage } from '../models/lastMessage';
+import { Message } from '../models/message';
 
 export default function getStyles(currentUserID: string, messages: Message[], theme: 'lightTheme' | 'darkTheme'){
 
@@ -63,7 +64,7 @@ export default function getStyles(currentUserID: string, messages: Message[], th
 				extraStyles.push(left);
 			}
 		}
-		return {...mess, userChange, extraStyles};
+		return {...mess, userChange, extraStyles} as lastMessage;
 	});
 	return newMessages;
 }

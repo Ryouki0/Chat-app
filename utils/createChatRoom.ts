@@ -1,6 +1,5 @@
 
-import { current } from '@reduxjs/toolkit';
-import { addDoc, getFirestore, doc, getDoc, collection, arrayUnion, updateDoc, query, where, and, or, getDocs } from 'firebase/firestore';
+import { addDoc, getFirestore, doc, getDoc, collection, query, where, and, or, getDocs } from 'firebase/firestore';
 
 const db = getFirestore();
 
@@ -19,7 +18,7 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 
 		const chatRoomQuery = query(collection(db, 'PrivateChatRooms'),
 			and(or(where('User1.uid', '==', currentUserID), where('User2.uid', '==', currentUserID)),
-			or(where('User1.uid', '==', otherUserID), where('User2.uid', '==', otherUserID))));
+				or(where('User1.uid', '==', otherUserID), where('User2.uid', '==', otherUserID))));
 		
 		const chatRoom = await getDocs(chatRoomQuery);
 
@@ -34,16 +33,16 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 			const createdRoom = await addDoc(collection(db, 'PrivateChatRooms'), {
 				User1: {
 					Username: currentUserName, pfp: userData.pfp, uid: userData.uid 
-			},	User2: {
+				},	User2: {
 					Username: otherUserName, pfp: otherUserData.pfp, uid: otherUserData.uid
-			}, 	Messages: [],
+				}, 	Messages: [],
 				quickReaction: {
-					"category": "people & body", 
-					"emoji": "👍", 
-					"keywords": ["ok", "yep", "great", "nice", "thumbs up", "good job", "well done", "sounds good", "thumbsup", "yes", "awesome", "good", "agree", "accept", "cool", "hand", "like", "+1", "thumbs up sign"], 
-					"name": "thumbs up sign", 
-					"order": 20, 
-					"unified": "1F44D"}});
+					'category': 'people & body', 
+					'emoji': '👍', 
+					'keywords': ['ok', 'yep', 'great', 'nice', 'thumbs up', 'good job', 'well done', 'sounds good', 'thumbsup', 'yes', 'awesome', 'good', 'agree', 'accept', 'cool', 'hand', 'like', '+1', 'thumbs up sign'], 
+					'name': 'thumbs up sign', 
+					'order': 20, 
+					'unified': '1F44D'}});
 			
 			navigation.navigate('ChatRoom', {currentUserID: currentUserID, otherUserID: otherUserID, roomID: createdRoom.id});
 		}

@@ -1,9 +1,9 @@
 
-import React, { useContext, useEffect, useState, useRef, useMemo, SetStateAction } from 'react';
-import { StyleSheet, Text, View, Button, ScrollView, TouchableOpacity, FlatList, } from 'react-native';
+import React, { useState, useRef } from 'react';
+import { StyleSheet, ScrollView, } from 'react-native';
 import { Input } from 'react-native-elements';
 import { getAuth, } from 'firebase/auth';
-import { DocumentReference, doc, getDoc, getFirestore, onSnapshot, updateDoc } from 'firebase/firestore'; 
+import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore'; 
 import getAllUsers from '../../utils/getAllUsers';
 import { useFocusEffect } from '@react-navigation/native';
 import { userData } from '../../models/userData';
@@ -21,17 +21,16 @@ import { setUserData } from '../../state/slices/userDataSlice';
 const auth = getAuth();
 const db = getFirestore();
 
-export default function Chats({route, navigation}) {
+export default function Chats({ navigation }) {
 
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 
-	const chatRoomQuery = useSelector((state: RootState) => {return state.chatRoomSlice.chatRoomQuery});
+	const chatRoomQuery = useSelector((state: RootState) => {return state.chatRoomSlice.chatRoomQuery;});
 	const [isSearching, setisSearching] = useState(false);
 	const [allUsers, setAllUsers] = useState(null);
 	const [usersToDisplay, setUsersToDisplay] = useState(null);
 	const [chatHistory, setChatHistory] = useState<Room[]>(null);
-	const userDataState = useSelector((state:RootState) => {return state.userDataSlice});
 	const dispatch = useDispatch();
 	const localInputRef = useRef();
 	
@@ -55,14 +54,18 @@ export default function Chats({route, navigation}) {
 	const keyboardDidHideCallback = () => {
 		// @ts-ignore comment
 		localInputRef.current?.blur?.(); 
-	 };
+	};
 
 	useFocusEffect(
 		React.useCallback(() => {
 			const keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', keyboardDidHideCallback);
 			let chatHistorySubscription = null;
 			if(chatRoomQuery){
-				chatHistorySubscription = onSnapshot(chatRoomQuery, async () =>{console.log('new message'); setChatHistory(await getChatHistory())});
+				chatHistorySubscription = onSnapshot(chatRoomQuery, async () => {
+					console.log('new message');
+					setChatHistory(await getChatHistory());
+				}, 
+				(err) => {console.log('error in chatHistorySubscription: ', err);});
 			}
 			async function getUserData(){
 				const userData = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data() as userData;
@@ -94,7 +97,7 @@ export default function Chats({route, navigation}) {
 				
 					ref={(ref) => {
 						localInputRef && (localInputRef.current = ref as any);
-				 }}
+					}}
 					onChangeText={(search) => {onSearch(search);}}
 					onFocus={() => {onFocus();}}
 					onBlur={() => {onBlur();}}

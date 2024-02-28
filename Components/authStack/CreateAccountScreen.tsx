@@ -15,7 +15,7 @@ import { registerForPushNotificationsAsync } from '../../notification';
 const auth = getAuth();
 const db = getFirestore();
 export default function CreateAccountScreen() {
-	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme});
+	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
 	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');

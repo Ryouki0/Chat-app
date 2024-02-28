@@ -1,8 +1,17 @@
+import { Timestamp } from 'firebase/firestore';
 import React from 'react';
-import {Text} from 'react-native';
+import {Text, TextStyle, ViewStyle} from 'react-native';
 const allMonths = ['Jan','Feb','Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-export default function DateDisplay({time, style, year=false, months=true, days=true, hours=true, minutes=true}) {
+export default function DateDisplay({time, style, year=false, months=true, days=true, hours=true, minutes=true}: React.PropsWithChildren<{
+	time: Timestamp,
+	style: TextStyle,
+	year?: boolean,
+	months?: boolean,
+	days?: boolean,
+	hours?: boolean,
+	minutes?: boolean,
+}>) {
 	if(!time){
 		console.log('no time');
 		return null;

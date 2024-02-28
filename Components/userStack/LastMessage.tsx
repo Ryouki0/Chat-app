@@ -1,16 +1,21 @@
 
-import React, { useContext } from 'react';
+import React, { Dispatch } from 'react';
 import { AntDesign } from '@expo/vector-icons';
 import { View, Text } from 'react-native';
 import StorageImage from '../StorageImage';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
+import { lastMessage } from '../../models/lastMessage';
 
 const iconSize = 14;
 
-export default function LastMessage({message, currentUserID, otherUserPfp, setTappedMessage}){
-	//console.log('lastmessage: ', message);
+export default function LastMessage({message, currentUserID, otherUserPfp, setTappedMessage}: React.PropsWithChildren<{
+	message: lastMessage,
+	currentUserID: string,
+	otherUserPfp: string,
+	setTappedMessage: Dispatch<any>,
+}>){
 	if(message === null || message === undefined){
 		console.log('in lastmessage message is null');
 		return -1;

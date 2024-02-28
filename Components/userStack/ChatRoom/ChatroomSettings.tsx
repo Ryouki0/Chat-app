@@ -15,24 +15,24 @@ import { TouchableOpacity } from 'react-native';
 const db = getFirestore();
 
 function getSettings(roomId: string, userData: userData){
-    const isNotificationsOn = userData.mutedRooms?.includes(roomId);
-    return {isNotificationsOn};
+	const isNotificationsOn = userData.mutedRooms?.includes(roomId);
+	return {isNotificationsOn};
 }
 
 async function toggleNotifications(roomId: string, userData: userData){
-    try{
-        if(userData.mutedRooms?.includes(roomId)){
-            const newMutedRooms = userData.mutedRooms.filter((room: string) => room !== roomId);
-            await updateDoc(doc(db, 'Users', `${userData.uid}`), {mutedRooms: newMutedRooms});
-            store.dispatch(updateUserData({element: 'mutedRooms', newValue: newMutedRooms}));
-        }else{
-            await updateDoc(doc(db,'Users', `${userData.uid}`), {mutedRooms: arrayUnion(roomId)});
-            const newMutedRooms = [...userData.mutedRooms, roomId];
-            store.dispatch(updateUserData({element: 'mutedRooms', newValue: newMutedRooms}));
-        }
-    }catch(err){
-        console.log('error in toggleNotifications: ', err);
-    }
+	try{
+		if(userData.mutedRooms?.includes(roomId)){
+			const newMutedRooms = userData.mutedRooms.filter((room: string) => room !== roomId);
+			await updateDoc(doc(db, 'Users', `${userData.uid}`), {mutedRooms: newMutedRooms});
+			store.dispatch(updateUserData({element: 'mutedRooms', newValue: newMutedRooms}));
+		}else{
+			await updateDoc(doc(db,'Users', `${userData.uid}`), {mutedRooms: arrayUnion(roomId)});
+			const newMutedRooms = [...userData.mutedRooms, roomId];
+			store.dispatch(updateUserData({element: 'mutedRooms', newValue: newMutedRooms}));
+		}
+	}catch(err){
+		console.log('error in toggleNotifications: ', err);
+	}
     
 }
 
@@ -40,51 +40,51 @@ export default React.memo(function({roomId, setEmojiPicker, quickReaction}: Reac
     roomId: string
     setEmojiPicker: React.Dispatch<SetStateAction<boolean>>
     quickReaction: Emoji | undefined}>) {
-    const userDataSlice = useSelector((state: RootState) => {return state.userDataSlice});
-    const [userData, setUserData] = useState<userData>();
-    const [isNotificationsOn, setIsNotificationsOn] = useState<boolean>(getSettings(roomId, userDataSlice).isNotificationsOn);
-    const themeState = useSelector((state: RootState) => {return state.themeSlice.theme})
-    const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
-    console.log('userData mutedrooms: ', userData?.mutedRooms);
+	const userDataSlice = useSelector((state: RootState) => {return state.userDataSlice;});
+	const [userData, setUserData] = useState<userData>();
+	const [isNotificationsOn, setIsNotificationsOn] = useState<boolean>(getSettings(roomId, userDataSlice).isNotificationsOn);
+	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
+	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
+	console.log('userData mutedrooms: ', userData?.mutedRooms);
 
-    useEffect(() => {
-        setUserData(userDataSlice);
-        //setIsNotificationsOn(getSettings(roomId, userDataSlice).isNotificationsOn);
-    }, [userDataSlice])
+	useEffect(() => {
+		setUserData(userDataSlice);
+		//setIsNotificationsOn(getSettings(roomId, userDataSlice).isNotificationsOn);
+	}, [userDataSlice]);
 
-    const styles = StyleSheet.create({
-        container: {
-            backgroundColor: '#939393',
-            borderColor: themeState === 'lightTheme' ? '#141414' : '#c7c8c7',
-            borderWidth: 1,
-            marginRight: 20, 
-            borderRadius: 10,
-            position: 'absolute',
-            zIndex: 10,
-            right: 0,
-        },
-    })
+	const styles = StyleSheet.create({
+		container: {
+			backgroundColor: '#939393',
+			borderColor: themeState === 'lightTheme' ? '#141414' : '#c7c8c7',
+			borderWidth: 1,
+			marginRight: 20, 
+			borderRadius: 10,
+			position: 'absolute',
+			zIndex: 10,
+			right: 0,
+		},
+	});
 
-    return <>
-        <View style={styles.container}>
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                <Text style={[theme.primaryText, {margin: 10}]}>Mute this room</Text>
-                <Switch onValueChange={() => {toggleNotifications(roomId, userData); 
-                    setIsNotificationsOn(!isNotificationsOn)}} value={isNotificationsOn}>
-                </Switch>
-            </View>
-            <TouchableOpacity onPress={() => {setEmojiPicker(emojiState => !emojiState);}}>
-            <View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'space-between'}}>
-                <Text style={[theme.primaryText, {margin: 10}]}>
+	return <>
+		<View style={styles.container}>
+			<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+				<Text style={[theme.primaryText, {margin: 10}]}>Mute this room</Text>
+				<Switch onValueChange={() => {toggleNotifications(roomId, userData); 
+					setIsNotificationsOn(!isNotificationsOn);}} value={isNotificationsOn}>
+				</Switch>
+			</View>
+			<TouchableOpacity onPress={() => {setEmojiPicker(emojiState => !emojiState);}}>
+				<View style={{flexDirection: 'row', alignItems:'center', justifyContent: 'space-between'}}>
+					<Text style={[theme.primaryText, {margin: 10}]}>
                     Quick reaction
-                </Text>
-                <EmojiCell emoji={quickReaction} colSize={30} onPress={() => {}}></EmojiCell>
-            </View>
-            </TouchableOpacity>
+					</Text>
+					<EmojiCell emoji={quickReaction} colSize={30} onPress={() => {}}></EmojiCell>
+				</View>
+			</TouchableOpacity>
             
             
             
-        </View>
+		</View>
         
-    </>
-})
+	</>;
+});

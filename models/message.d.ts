@@ -1,4 +1,4 @@
-import { Timestamp } from "react-native-reanimated/lib/typescript/reanimated2/commonTypes";
+import { Timestamp } from 'react-native-reanimated/lib/typescript/reanimated2/commonTypes';
 
 export interface Message {
     id: string,

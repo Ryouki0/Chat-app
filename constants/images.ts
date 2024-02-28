@@ -1,7 +1,7 @@
 
 
 export const images = {
-    pfp: {
+	pfp: {
 		width: 60,
 		height: 60,
 		padding: 4,
@@ -10,4 +10,4 @@ export const images = {
 		marginRight: 4,
 		marginBottom: 2,
 	},
-}
+};
