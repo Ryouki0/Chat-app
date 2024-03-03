@@ -25,7 +25,11 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 		if(!chatRoom.empty){
 			foundRoom = true;
 			console.log('chatRoom.docs[0].data', chatRoom.docs[0].id);
-			navigation.navigate('ChatRoom',{currentUserID: currentUserID, otherUserID: otherUserID, roomID: chatRoom.docs[0].id});
+			navigation.navigate('ChatRoom',{
+				currentUserID: currentUserID,
+				otherUserID: otherUserID,
+				roomID: chatRoom.docs[0].id,
+				otherUserPfp: otherUserData.pfp});
 		}
 		const currentUserName = userData.Username;
 
@@ -44,7 +48,11 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 					'order': 20, 
 					'unified': '1F44D'}});
 			
-			navigation.navigate('ChatRoom', {currentUserID: currentUserID, otherUserID: otherUserID, roomID: createdRoom.id});
+			navigation.navigate('ChatRoom', {
+				currentUserID: currentUserID,
+				otherUserID: otherUserID,
+				roomID: createdRoom.id,
+				otherUserPfp: otherUserData.pfp});
 		}
 	}catch(err){
 		console.log('error in createAccount: ', err);

@@ -21,16 +21,20 @@ export default function DisplayChatHistory({chatHistory, navigation}: React.Prop
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState ==='lightTheme' ? lightTheme : darkTheme;
 
-    
 	return <>
 		{chatHistory ? (
 			chatHistory.map((room: Room) => {
+				console.log('\n\nchathistory: ', room, '\n\n');
 				return <TouchableOpacity key={room.otherUser.uid} 
 					style={{
 						alignItems: 'center', flexDirection: 'row',
 					}}
 					onPress={() => {
-						navigation.navigate('ChatRoom', {currentUserID: auth.currentUser.uid, otherUserID: room.otherUser.uid, roomID: room.chatRoomId});
+						navigation.navigate('ChatRoom', {
+							currentUserID: auth.currentUser.uid,
+							otherUserID: room.otherUser.uid,
+							roomID: room.chatRoomId,
+							otherUserPfp: room.otherUser.pfp});
 					}}>
 					<View style={{alignItems: 'center', flexDirection: 'row', flex: 1}}>
 						<StorageImage imagePath={room.otherUser.pfp} style={images.pfp}></StorageImage>
@@ -92,7 +96,7 @@ export default function DisplayChatHistory({chatHistory, navigation}: React.Prop
 					) : (<></>)}
 				</TouchableOpacity>;
 			})
-		) : (<></>)}
+		) : (<Text style={[theme.primaryText, {fontSize: 17, alignSelf: 'center'}]}>No Chat history yet</Text>)}
         
 	</>; 
     

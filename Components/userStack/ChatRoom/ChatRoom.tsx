@@ -9,7 +9,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import LastMessage from '../LastMessage';
 import DateDisplay from '../../DateDisplay';
 import { Message } from '../../../models/message';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { darkTheme, lightTheme } from '../../../constants/theme';
 import { RootState } from '../../../state/store';
 import ChatroomSettings from './ChatroomSettings';
@@ -18,7 +18,11 @@ import EmojiPicker from 'rn-emoji-picker';
 import {emojis} from 'rn-emoji-picker/dist/data';
 import updateQuickReaction from '../../../utils/updateQuickReaction';
 import { Emoji } from 'rn-emoji-picker/dist/interfaces';
-import { lastMessage } from '../../../models/lastMessage';
+import { styledMessage } from '../../../models/styledMessage';
+import sizeof from 'object-sizeof';
+import DisplayMessages from './DisplayMessages';
+import { setChatRoomData } from '../../../state/slices/chatRoomSlice';
+import { setRoomMessages } from '../../../state/slices/messagesSlice';
 const db = getFirestore();
 
 let isScrollAtBottom = true;
@@ -26,35 +30,50 @@ let isScrollAtBottom = true;
 export default function ChatRoom({route}: React.PropsWithChildren<any>) {
 	const themeState = useSelector((state: RootState) => {return state?.themeSlice.theme;});
 	const chatRoomSettingState = useSelector((state: RootState) => {return state.chatRoomSettingSlice.isOn;});
+	const roomMessages = useSelector((state: RootState) => {return state.RoomMessages.messages});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const roomID = route.params.roomID;
 	const currentUserID = route.params.currentUserID;
 	const otherUserID = route.params.otherUserID;
+	const otherUserPfp = route.params.otherUserPfp;
 
+	const dispatch = useDispatch();
 
 	const [tappedMessage, setTappedMessage] = useState<string>(null);
-	const [quickReaction, setQuickReaction] = useState<Emoji | undefined>();
-	const [messages, setMessages] = useState<lastMessage[]>(null);
-	const [otherUserPfp, setOtherUserPfp] = useState(null);
+	const [quickReaction, setQuickReaction] = useState<Emoji | undefined>(null);
+	const [messages, setMessages] = useState<styledMessage[]>(null);
 	const [emojiPicker, setEmojiPicker] = useState(false);
-
+	const [loading, setLoading] = useState<boolean>(true);
 	useFocusEffect(
 		React.useCallback(() => {
 			const observer = onSnapshot(doc(db, 'PrivateChatRooms', `${roomID}`), () => {getMessages();});
-
-			async function getPfp() {
-				const pfp = (await getDoc(doc(db, 'Users', `${otherUserID}`))).data().pfp;
-				setOtherUserPfp(pfp);
-			}
+			
+			if(!loading){
+				dispatch(setChatRoomData({
+					otherUserName: null,
+					otherUserPfp: otherUserPfp,
+					currentUserId: currentUserID,
+					roomId: roomID,
+					setTappedMessage: setTappedMessage,
+					quickReaction: quickReaction,
+					chatRoomSettingsState: false,
+				}))
+				console.log('roomdata dispatched');
+			} 
 
 			async function getMessages() {
 				const roomData = (await getDoc(doc(db, 'PrivateChatRooms', `${roomID}`))).data();
+				
 				setQuickReaction(roomData.quickReaction);
 				const messages = roomData.Messages;
+				console.log('sizeof 1 message: ', sizeof(messages[0]));
+				
+
 				if(messages.length < 1){
-					return -1;
+					return null;
 				}
-				if(messages[messages.length-1].senderId === otherUserID){
+				
+				if(messages[messages.length-1].senderId === otherUserID && !messages[messages.length - 1].seen){
 					const newMessages = messages.map((mess:Message, idx:number) => {
 						if(idx === messages.length-1){
 							return {
@@ -63,25 +82,32 @@ export default function ChatRoom({route}: React.PropsWithChildren<any>) {
 								seen: true,
 								time: mess.time,
 								senderId: mess.senderId,
+								type: mess.type,
 							};
 						}else{
 							return mess;
 						}
 					});
 					updateDoc(doc(db, 'PrivateChatRooms', `${roomID}`), {Messages: newMessages});
-					
 				}
-				setMessages(getStyles(currentUserID, messages, themeState));
+
+				const styledMessages = getStyles(currentUserID, messages, themeState);
+				setMessages(styledMessages);
+				setLoading(false);
 				console.log('getMessages');
 			}
 			getMessages();
-			getPfp();
-			return () => {observer();
-				setOtherUserPfp(null);
-				setMessages(null);};
-		}, [otherUserID, themeState])
+			return () => {
+				observer();
+				setMessages(null);
+			};
+		}, [otherUserID, themeState, loading])
 	);
         
+	const isCloseToTop = ({layoutMeasurement, contentOffset, contentSize}) => {
+		return contentOffset.y <= 50;
+	}
+
 	const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
 		const paddingToBottom = 50;
 		return layoutMeasurement.height + contentOffset.y >=
@@ -102,42 +128,15 @@ export default function ChatRoom({route}: React.PropsWithChildren<any>) {
 					isScrollAtBottom = true;
 				}else{
 					isScrollAtBottom = false;
+				}if(isCloseToTop(nativeEvent)){
+					return null;
 				}
 			}}
 			onContentSizeChange={() => {if(isScrollAtBottom){
 				this.scrollView.scrollToEnd({animated: false});
 			}}}
 			scrollEventThrottle={16}>
-
-			{messages ? (
-				messages.map((mess: lastMessage, idx: number) => {
-               
-					return <View key={mess.id} >
-						{tappedMessage === mess.id ? (
-							<DateDisplay time={mess.time} style={{color: theme.primaryText.color, alignSelf: 'center'}} months={false} days={false}></DateDisplay>
-						) : (
-							<></>
-						)}
-						{messages.length === idx + 1 ? (
-							<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp} 
-								setTappedMessage={setTappedMessage}></LastMessage>
-						) : (
-							mess.userChange ? (
-								<LastMessage message={mess} currentUserID={currentUserID} otherUserPfp={otherUserPfp}
-									setTappedMessage={setTappedMessage} ></LastMessage>
-							) : (
-								<Text style={[mess.extraStyles, {color: theme.primaryText.color}]} onPress={() => {
-									setTappedMessage((messId: string) => {if(messId === mess.id){
-										return null;
-									}else{
-										return mess.id;
-									}});
-								}} >{mess.message}</Text>
-							)
-						)}
-					</View>; 
-				})
-			) : (<></>)}
+				{!loading && <DisplayMessages messages={messages} tappedMessage={tappedMessage}></DisplayMessages>}
 		</ScrollView>
 		
 		<InputBar roomId={roomID} otherUserId={otherUserID} quickReaction={quickReaction}></InputBar>

@@ -1,7 +1,7 @@
 
 import { getAuth } from 'firebase/auth';
 import { DocumentSnapshot, collection, doc, getDoc, getDocs, getFirestore, or, orderBy, query, where } from 'firebase/firestore';
-import { setChatRoomQueryState, setChatRoomState } from '../state/slices/chatRoomsSlice';
+import { setChatRoomQueryState, setChatRoomState } from '../state/slices/chatRoomHistorySlice';
 import { store } from '../state/store';
 const auth = getAuth();
 const db = getFirestore();

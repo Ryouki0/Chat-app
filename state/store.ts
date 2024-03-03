@@ -3,10 +3,12 @@ import testSlice from './slices/testSlice';
 import themeSlice from './slices/themeSlice';
 import { persistReducer, persistStore } from 'redux-persist';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import chatRoomsSlice from './slices/chatRoomsSlice';
+import chatRoomsSlice from './slices/chatRoomHistorySlice';
 import cachedImageSlice from './slices/cachedImageSlice';
 import chatRoomSettingSlice from './slices/chatRoomSettingSlice';
 import userDataSlice from './slices/userDataSlice';
+import ChatRoomDataSlice from './slices/chatRoomSlice';
+import messagesSlice from './slices/messagesSlice';
 const persistConfig = {
 	key: 'root',
 	storage: AsyncStorage,
@@ -22,6 +24,8 @@ export const store = configureStore({
 		cachedImageSlice: cachedImageSlice,
 		chatRoomSettingSlice: chatRoomSettingSlice,
 		userDataSlice: userDataSlice,
+		ChatRoomDataSlice: ChatRoomDataSlice,
+		RoomMessages: messagesSlice,
 	},
 	middleware: (getDefaultMiddleWare) => {return getDefaultMiddleWare({serializableCheck: false});}
 });

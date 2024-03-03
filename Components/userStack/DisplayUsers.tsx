@@ -20,7 +20,7 @@ export default function DisplayUsers({navigation, usersToDisplay}: React.PropsWi
 	const currentUser = auth.currentUser;
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
-	console.log('usersToDisplay:', usersToDisplay);
+	
 	return (
 		usersToDisplay ? (
 			usersToDisplay.map((user) => {

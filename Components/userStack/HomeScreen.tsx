@@ -69,8 +69,8 @@ export default function Chats({ navigation }) {
 			}
 			async function getUserData(){
 				const userData = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data() as userData;
-				console.log('userData in getUserData: ', userData);
 				dispatch(setUserData(userData));
+				console.log('dispatched userData in HomeScreen');
 			}
 
 			async function getUsers() {

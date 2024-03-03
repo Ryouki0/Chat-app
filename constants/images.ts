@@ -10,4 +10,9 @@ export const images = {
 		marginRight: 4,
 		marginBottom: 2,
 	},
+	imageMessage: {
+		width: 200,
+		height: 200,
+		borderRadius: 10,
+	}
 };

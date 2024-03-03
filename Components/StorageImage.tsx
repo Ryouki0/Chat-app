@@ -55,7 +55,7 @@ export default function StorageImage({imagePath, style}: React.PropsWithChildren
 			}
 		}
 		setBase64(cache);
-		if(!cache && imagePath){
+		if(cache === null && imagePath !== undefined && imagePath !== ''){
 			getUrl();
 		}
 	}, [imagePath]);

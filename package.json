@@ -31,6 +31,7 @@
     "expo-updates": "~0.24.11",
     "firebase": "^10.7.2",
     "firebaseui": "^6.1.0",
+    "object-sizeof": "^2.6.4",
     "prop-types": "^15.8.1",
     "react": "18.2.0",
     "react-native": "0.73.4",

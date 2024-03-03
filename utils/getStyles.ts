@@ -1,7 +1,4 @@
-
-
-
-import { lastMessage } from '../models/lastMessage';
+import { styledMessage } from '../models/styledMessage';
 import { Message } from '../models/message';
 
 export default function getStyles(currentUserID: string, messages: Message[], theme: 'lightTheme' | 'darkTheme'){
@@ -30,41 +27,35 @@ export default function getStyles(currentUserID: string, messages: Message[], th
 		marginLeft: 44,
 	};
 
-
-   
 	const newMessages = messages.map((mess: Message, idx) => {
 		const extraStyles = [];
 		let hasStyle = false;
 		let userChange = false;
 		if(mess.senderId === currentUserID){
-			if(messages[idx - 1] != undefined && messages[idx-1].senderId === currentUserID) {
-				extraStyles.push({borderTopRightRadius: 10, ...right});
+			if(messages[idx-1]?.senderId === currentUserID) {
+				extraStyles.push({borderTopRightRadius: 10, });
 				hasStyle= true;
 			}
-			if(messages[idx + 1] != undefined && messages[idx +1 ].senderId === currentUserID){
-				extraStyles.push({borderBottomRightRadius: 10, ...right});
+			if(messages[idx + 1]?.senderId === currentUserID){
+				extraStyles.push({borderBottomRightRadius: 10, });
 				hasStyle = true;
 			}
-			if(!hasStyle){
-				extraStyles.push(right);
-			}
+			mess.type === 'quickReaction' ? extraStyles.push({alignSelf:'flex-end', marginRight: 20, fontSize: 20}) : extraStyles.push(right);
 		}
 		else{
-			if(messages[idx - 1] != undefined && messages[idx-1].senderId != currentUserID){
-				extraStyles.push({borderTopLeftRadius: 10, ...left});
+			if(messages[idx-1]?.senderId != currentUserID){
+				extraStyles.push({borderTopLeftRadius: 10 });
 				hasStyle = true;
 			}
-			if(messages[idx + 1] != undefined && messages[idx + 1].senderId != currentUserID){
-				extraStyles.push({borderBottomLeftRadius: 10, ...left});
+			if(messages[idx + 1]?.senderId != currentUserID){
+				extraStyles.push({borderBottomLeftRadius: 10, });
 				hasStyle = true;
 			}else{
 				userChange = true;
 			}
-			if(!hasStyle){
-				extraStyles.push(left);
-			}
+			mess.type === 'quickReaction' ? extraStyles.push({alignSelf:'flex-start', fontSize:20, marginLeft:44}) : extraStyles.push(left);
 		}
-		return {...mess, userChange, extraStyles} as lastMessage;
+		return {...mess, userChange, extraStyles} as styledMessage;
 	});
 	return newMessages;
 }

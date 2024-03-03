@@ -1,5 +1,5 @@
 
-export interface lastMessage{
+export interface styledMessage{
     extraStyles: [TextStyle], 
     id: string,
     message: string,

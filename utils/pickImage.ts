@@ -13,7 +13,7 @@ export const pickImage = async (allowsEditing: boolean) => {
 		});
 		console.log('result:', result.assets[0].mimeType);
 		const mimeType = result.assets[0].mimeType;
-		const refId = uuid.v4();
+		const refId = uuid.v4() as string;
 		const  storageRef = ref(storage, `${refId}`);
         
 		const fetchUri = await fetch(result.assets[0].uri);

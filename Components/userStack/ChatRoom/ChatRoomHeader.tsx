@@ -12,7 +12,6 @@ import { AntDesign } from '@expo/vector-icons';
 
 const db = getFirestore();
 export default function ChatRoomHeader({params}){
-	console.log('params: ', params.route);
 
 	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;

@@ -6,4 +6,5 @@ export interface Message {
     seen: boolean,
     time: Timestamp,
     senderId: string,
+    type?: 'text' | 'image' | 'quickReaction',
 }
