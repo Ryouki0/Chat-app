@@ -14,12 +14,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../state/store';
 import { darkTheme, lightTheme } from '../constants/theme';
 import { Entypo } from '@expo/vector-icons';
-import { chatRoomSettingToggle } from '../state/slices/chatRoomSettingSlice';
+import ChatRoomEntryPoint from '../Components/userStack/ChatRoom/ChatRoomEntryPoint';
+import { setSettingsState } from '../state/slices/chatRoomSlice';
 const Tab = createBottomTabNavigator();
 
 export default function UserStack(){
 
 	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
+	const settingsState = useSelector((state: RootState) => {return state.ChatRoomDataSlice?.chatRoomSettingsState});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const dispatch = useDispatch();
 	let navigationTheme = DefaultTheme;
@@ -63,9 +65,13 @@ export default function UserStack(){
 						headerTitle: () => {return <ChatRoomHeader params={params} />;},
 						headerRight: () => {return <Entypo name="dots-three-vertical" size={24} color={theme.secondaryText.color} 
 							style={{alignSelf: 'flex-end', paddingRight: 10}} onPress={() => {
+								dispatch(setSettingsState(settingsState ? false : true))
 								console.log('tapped header');
-								dispatch(chatRoomSettingToggle());
 							}}/>;}
+					})}></Tab.Screen>
+					<Tab.Screen name='ChatRoomEntryPoint' component={ChatRoomEntryPoint} options={() => ({
+						tabBarButton: () => null,
+						header: () => null,
 					})}></Tab.Screen>
 				</Tab.Navigator>
 			</NavigationContainer>

@@ -12,32 +12,13 @@ import { AntDesign } from '@expo/vector-icons';
 
 const db = getFirestore();
 export default function ChatRoomHeader({params}){
-
+	const otherUserName = useSelector((state: RootState) => {return state.ChatRoomDataSlice.otherUserName;});
+	const otherUserPfp = useSelector((state: RootState) => {return state.ChatRoomDataSlice.otherUserPfp;});
 	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
-
-	const [otherUserPfp, setOtherUserPfp] = useState(null);
-	const [otherUserName, setOtherUserName] = useState(null);
-	useFocusEffect(
-		React.useCallback(() => {
-			async function getData(){
-				try{
-					const data = (await getDoc(doc(db,'Users', `${params.route.params.otherUserID}`))).data();
-					setOtherUserName(data.Username);
-					setOtherUserPfp(data.pfp);
-					console.log('otherUserPfp in chatRoomHeader: ', data.pfp);
-				}catch(err){
-					console.log('error in chatroomheader: ', err);
-				}
-			}
-			getData();
-			return () => {
-				setOtherUserName(null);
-				setOtherUserPfp(null);
-			};
-		}, [params])
-	);
-
+	
+	console.log('otherUser name, pfp in chatroomHeader:', otherUserName, 'pfp:', otherUserPfp);
+	
 	return <View style={{flexDirection: 'row'}}>
 		<View style={{flexDirection: 'row', alignItems: 'center'}}>
 			<AntDesign name='arrowleft' size={26} color={theme.primaryText.color} onPress={()=>{

@@ -1,34 +1,34 @@
 
-import { addDoc, getFirestore, doc, getDoc, collection, query, where, and, or, getDocs } from 'firebase/firestore';
+import { addDoc, getFirestore, doc, getDoc, collection, query, where, and, or, getDocs, setDoc } from 'firebase/firestore';
 
 const db = getFirestore();
 
 
 
-export default async function createChatRoom(currentUserID: string, otherUserID: string, navigation){
-	if(currentUserID === otherUserID){
-		console.log('currentUserID === otherUserID in createChatRoom');
+export default async function createChatRoom(currentUserId: string, otherUserId: string, navigation){
+	if(currentUserId === otherUserId){
+		console.log('currentUserId === otherUserId in createChatRoom');
 		return null;
 	}
 	try{
 		let foundRoom = false;
-		const userData = (await getDoc(doc(db, 'Users', currentUserID))).data();
-		const otherUserData = (await getDoc(doc(db, 'Users', otherUserID))).data();
+		const userData = (await getDoc(doc(db, 'Users', currentUserId))).data();
+		const otherUserData = (await getDoc(doc(db, 'Users', otherUserId))).data();
 		const otherUserName = otherUserData.Username;
 
 		const chatRoomQuery = query(collection(db, 'PrivateChatRooms'),
-			and(or(where('User1.uid', '==', currentUserID), where('User2.uid', '==', currentUserID)),
-				or(where('User1.uid', '==', otherUserID), where('User2.uid', '==', otherUserID))));
+			and(or(where('User1.uid', '==', currentUserId), where('User2.uid', '==', currentUserId)),
+				or(where('User1.uid', '==', otherUserId), where('User2.uid', '==', otherUserId))));
 		
 		const chatRoom = await getDocs(chatRoomQuery);
 
 		if(!chatRoom.empty){
 			foundRoom = true;
 			console.log('chatRoom.docs[0].data', chatRoom.docs[0].id);
-			navigation.navigate('ChatRoom',{
-				currentUserID: currentUserID,
-				otherUserID: otherUserID,
-				roomID: chatRoom.docs[0].id,
+			navigation.navigate('ChatRoomEntryPoint',{
+				currentUserId: currentUserId,
+				otherUserId: otherUserId,
+				roomId: chatRoom.docs[0].id,
 				otherUserPfp: otherUserData.pfp});
 		}
 		const currentUserName = userData.Username;
@@ -39,7 +39,7 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 					Username: currentUserName, pfp: userData.pfp, uid: userData.uid 
 				},	User2: {
 					Username: otherUserName, pfp: otherUserData.pfp, uid: otherUserData.uid
-				}, 	Messages: [],
+				},
 				quickReaction: {
 					'category': 'people & body', 
 					'emoji': '👍', 
@@ -47,11 +47,11 @@ export default async function createChatRoom(currentUserID: string, otherUserID:
 					'name': 'thumbs up sign', 
 					'order': 20, 
 					'unified': '1F44D'}});
-			
-			navigation.navigate('ChatRoom', {
-				currentUserID: currentUserID,
-				otherUserID: otherUserID,
-				roomID: createdRoom.id,
+			await setDoc(doc(db, 'PrivateChatRooms', `${createdRoom.id}`, 'Messages', 'InitDoc'), {});
+			navigation.navigate('ChatRoomEntryPoint', {
+				currentUserId: currentUserId,
+				otherUserId: otherUserId,
+				roomId: createdRoom.id,
 				otherUserPfp: otherUserData.pfp});
 		}
 	}catch(err){

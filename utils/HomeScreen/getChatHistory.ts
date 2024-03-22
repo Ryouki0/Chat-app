@@ -1,8 +1,8 @@
 
 import { getAuth } from 'firebase/auth';
 import { DocumentSnapshot, collection, doc, getDoc, getDocs, getFirestore, or, orderBy, query, where } from 'firebase/firestore';
-import { setChatRoomQueryState, setChatRoomState } from '../state/slices/chatRoomHistorySlice';
-import { store } from '../state/store';
+import { setChatRoomQueryState, setChatRoomState } from '../../state/slices/chatRoomHistorySlice';
+import { store } from '../../state/store';
 const auth = getAuth();
 const db = getFirestore();
 
@@ -15,11 +15,12 @@ interface User{
 
 export default async function getChatHistory(){
 	//const chatRooms = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data().PrivateChatRooms;
-	const userData = (await getDoc(doc(db,'Users', `${auth.currentUser.uid}`))).data();
+	const userData = store.getState().userDataSlice;
+	//console.log('userData in getChatHistory: ', userData);
 	const chatHistoryQuery = query(collection(db, 'PrivateChatRooms'), 
 		or(where('User1.Username', '==', userData.Username), 
 			where('User2.Username', '==', userData.Username)
-		), orderBy('lastMessageTime'));
+		), orderBy('lastMessage.serverTime', 'desc'));
 
 	const chatRoomsWithMessage = [];
 
@@ -48,11 +49,11 @@ export default async function getChatHistory(){
 		});
 		chatRoomsWithMessage.push({otherUser,
 			chatRoomId: doc.id,
-			lastMessage: doc.data().Messages[doc.data().Messages.length - 1]});
+			lastMessage: doc.data().lastMessage});
 	});
 	
 	store.dispatch(setChatRoomState(chatRoomIds ));
 	store.dispatch(setChatRoomQueryState(chatHistoryQuery));
 	
-	return chatRoomsWithMessage.reverse();
+	return chatRoomsWithMessage;
 }

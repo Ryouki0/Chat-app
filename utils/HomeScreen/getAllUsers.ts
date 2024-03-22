@@ -2,7 +2,7 @@
 
 import { collection, getDocs, getFirestore } from 'firebase/firestore';
 
-import { User } from '../models/userData';
+import { User } from '../../models/userData';
 const db = getFirestore();
 export default async function getAllUsers(){
 	return new Promise(async (resolve, reject) => {

@@ -36,21 +36,16 @@ async function toggleNotifications(roomId: string, userData: userData){
     
 }
 
-export default React.memo(function({roomId, setEmojiPicker, quickReaction}: React.PropsWithChildren<{
-    roomId: string
+export default React.memo(function({setEmojiPicker}: React.PropsWithChildren<{
     setEmojiPicker: React.Dispatch<SetStateAction<boolean>>
-    quickReaction: Emoji | undefined}>) {
+}>) {
 	const userDataSlice = useSelector((state: RootState) => {return state.userDataSlice;});
-	const [userData, setUserData] = useState<userData>();
+	const roomId = useSelector((state: RootState) => {return state.ChatRoomDataSlice.roomId});
+	const quickReaction = useSelector((state: RootState) => {return state.ChatRoomDataSlice.quickReaction});
 	const [isNotificationsOn, setIsNotificationsOn] = useState<boolean>(getSettings(roomId, userDataSlice).isNotificationsOn);
 	const themeState = useSelector((state: RootState) => {return state.themeSlice.theme;});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
-	console.log('userData mutedrooms: ', userData?.mutedRooms);
-
-	useEffect(() => {
-		setUserData(userDataSlice);
-		//setIsNotificationsOn(getSettings(roomId, userDataSlice).isNotificationsOn);
-	}, [userDataSlice]);
+	console.log('userData mutedrooms: ', userDataSlice?.mutedRooms);
 
 	const styles = StyleSheet.create({
 		container: {
@@ -69,7 +64,7 @@ export default React.memo(function({roomId, setEmojiPicker, quickReaction}: Reac
 		<View style={styles.container}>
 			<View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
 				<Text style={[theme.primaryText, {margin: 10}]}>Mute this room</Text>
-				<Switch onValueChange={() => {toggleNotifications(roomId, userData); 
+				<Switch onValueChange={() => {toggleNotifications(roomId, userDataSlice); 
 					setIsNotificationsOn(!isNotificationsOn);}} value={isNotificationsOn}>
 				</Switch>
 			</View>
@@ -81,9 +76,6 @@ export default React.memo(function({roomId, setEmojiPicker, quickReaction}: Reac
 					<EmojiCell emoji={quickReaction} colSize={30} onPress={() => {}}></EmojiCell>
 				</View>
 			</TouchableOpacity>
-            
-            
-            
 		</View>
         
 	</>;

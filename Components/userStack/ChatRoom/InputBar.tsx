@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import sendMessage from '../../../utils/sendMessage';
+import sendMessage from '../../../utils/ChatRoom/sendMessage';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../state/store';
 import { darkTheme, lightTheme } from '../../../constants/theme';
@@ -9,21 +9,20 @@ import {  View, TextInput } from 'react-native';
 import { Emoji } from 'rn-emoji-picker/dist/interfaces';
 import { AntDesign } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
-import sendImage from '../../../utils/sendImage';
-export default function InputBar({roomId, otherUserId, quickReaction}: React.PropsWithChildren<{
-    roomId: string,
-    otherUserId: string,
-	quickReaction: Emoji | undefined,
-}>){
+import sendImage from '../../../utils/ChatRoom/sendImage';
+export default function InputBar(){
 	
 	const themeState = useSelector((state:RootState) => {return state.themeSlice.theme;});
 	const currentUserId = useSelector((state: RootState) => {return state.userDataSlice.uid;});
+	const quickReaction = useSelector((state:RootState) => {return state.ChatRoomDataSlice.quickReaction});
+	const roomId = useSelector((state: RootState) => {return state.ChatRoomDataSlice.roomId});
+	const otherUserId = useSelector((state:RootState) => {return state.ChatRoomDataSlice.otherUserId});
 	const theme = themeState === 'lightTheme' ? lightTheme : darkTheme;
 	const [messToSend, setMessToSend] = useState('');
 		
 	return (
 		<View style={{flexDirection: 'row', backgroundColor: theme.container.backgroundColor, alignItems: 'center'}}>
-			<TouchableOpacity onPress={() => {sendImage(roomId, currentUserId, otherUserId)}}>
+			<TouchableOpacity onPress={() => {sendImage(roomId, currentUserId, otherUserId);}}>
 				<View style={{alignItems: 'center', marginLeft: 6}}>
 					<AntDesign name="picture" color={theme.secondaryText.color} size={28} />
 				</View>
@@ -40,8 +39,8 @@ export default function InputBar({roomId, otherUserId, quickReaction}: React.Pro
 						sendMessage(roomId, currentUserId, otherUserId, messToSend, 'text');
 					}}/>
 				<TouchableOpacity onPress={() => {
-							sendMessage(roomId, currentUserId, otherUserId, messToSend, 'text');
-							setMessToSend('');}}>
+					sendMessage(roomId, currentUserId, otherUserId, messToSend, 'text');
+					setMessToSend('');}}>
 					<View >
 						<Ionicons name="send" size={21} color={theme.primaryText.color} />
 					</View>

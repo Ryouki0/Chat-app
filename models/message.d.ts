@@ -5,6 +5,7 @@ export interface Message {
     message: string,
     seen: boolean,
     time: Timestamp,
+    serverTime: Timestamp,
     senderId: string,
     type?: 'text' | 'image' | 'quickReaction',
 }

@@ -1,3 +1,4 @@
+import { Timestamp } from "firebase/firestore"
 
 export interface styledMessage{
     extraStyles: [TextStyle], 
@@ -6,6 +7,7 @@ export interface styledMessage{
     seen: boolean,
     senderId: string,
     time: Timestamp,
+    serverTime: Timestamp,
     type?: string,
     userChange: boolean
 }

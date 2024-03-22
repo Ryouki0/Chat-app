@@ -1,7 +1,7 @@
 import { getAuth } from 'firebase/auth';
 import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
-import createChatRoom from '../../utils/createChatRoom';
+import createChatRoom from '../../utils/HomeScreen/createChatRoom';
 import StorageImage from '../StorageImage';
 import { Text } from 'react-native-elements';
 import { useSelector } from 'react-redux';
@@ -24,6 +24,9 @@ export default function DisplayUsers({navigation, usersToDisplay}: React.PropsWi
 	return (
 		usersToDisplay ? (
 			usersToDisplay.map((user) => {
+				if(user.uid === currentUser.uid){
+					return null;
+				}
 				console.log('user: ', user);
 				return (
 					<TouchableOpacity key={user.uid} onPress={() => {

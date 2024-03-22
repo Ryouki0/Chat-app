@@ -12,6 +12,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
 import { registerForPushNotificationsAsync } from '../../notification';
+import { miniSerializeError } from '@reduxjs/toolkit';
 const auth = getAuth();
 const db = getFirestore();
 export default function CreateAccountScreen() {
@@ -47,7 +48,6 @@ export default function CreateAccountScreen() {
 				expoPushToken: token,
 				signedIn: true,
 			});
-			
 		}catch(err){
 			setError({isError: true, message: err.message});
 			console.log('err: ', err);
