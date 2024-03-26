@@ -8,13 +8,13 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
 import { darkTheme, lightTheme } from '../../constants/theme';
 import { images } from '../../constants/images';
-import { User } from '../../models/userData';
+import { user } from '../../models/UserData';
 const auth = getAuth();
 
 
 export default function DisplayUsers({navigation, usersToDisplay}: React.PropsWithChildren<{
 	navigation: any,
-	usersToDisplay: User[],
+	usersToDisplay: user[],
 }>){
     
 	const currentUser = auth.currentUser;

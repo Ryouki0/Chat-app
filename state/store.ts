@@ -6,7 +6,6 @@ import chatRoomsSlice from './slices/chatRoomHistorySlice';
 import cachedImageSlice from './slices/cachedImageSlice';
 import userDataSlice from './slices/userDataSlice';
 import ChatRoomDataSlice from './slices/chatRoomSlice';
-import messagesSlice from './slices/messagesSlice';
 const persistConfig = {
 	key: 'root',
 	storage: AsyncStorage,
@@ -20,7 +19,6 @@ export const store = configureStore({
 		cachedImageSlice: cachedImageSlice,
 		userDataSlice: userDataSlice,
 		ChatRoomDataSlice: ChatRoomDataSlice,
-		RoomMessages: messagesSlice,
 	},
 	middleware: (getDefaultMiddleWare) => {return getDefaultMiddleWare({serializableCheck: false});}
 });

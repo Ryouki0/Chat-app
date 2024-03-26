@@ -5,7 +5,7 @@ import { TextStyle } from 'react-native';
 /**
  * Gets the styles for the messages, based on the neighboring messages.
  */
-export default function getStyles(messages: Message[] | [styledMessage | Message, styledMessage | Message]){
+export default function getStyles(messages: Message[] | [styledMessage | Message, styledMessage | Message] | [styledMessage]){
 	const theme = store.getState().themeSlice.theme;
 	const currentUserId = store.getState().userDataSlice.uid;
 	const rightBGColor = theme === 'lightTheme' ? '#a6a6a6' : '#636363';

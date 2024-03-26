@@ -7,7 +7,7 @@ const storage = getStorage();
 export const pickImage = async (allowsEditing: boolean) => {
 	try{
 		const result = await ImagePicker.launchImageLibraryAsync({
-			mediaTypes: ImagePicker.MediaTypeOptions.All,
+			mediaTypes: ImagePicker.MediaTypeOptions.Images,
 			allowsEditing: allowsEditing,
 			quality: 1,
 		});

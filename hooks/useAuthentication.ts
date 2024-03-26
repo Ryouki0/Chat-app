@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { onAuthStateChanged, initializeAuth, getReactNativePersistence, User} from 'firebase/auth';
+import { onAuthStateChanged, initializeAuth, getReactNativePersistence, user} from 'firebase/auth';
 import  ReactNativeAsyncStorage  from '@react-native-async-storage/async-storage';
 import app from '../config/firebaseConfig';
 
@@ -10,7 +10,7 @@ const auth = initializeAuth(app, {
 });
 
 export function useAuthentication() {
-  const [user, setUser] = React.useState<User>(null);
+  const [user, setUser] = React.useState<user>(null);
 
   React.useEffect(() => {
     const unsubscribeFromAuthStatuChanged = onAuthStateChanged(auth, (user) => {

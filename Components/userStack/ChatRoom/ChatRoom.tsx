@@ -39,9 +39,11 @@ export default function ChatRoom() {
 	useFocusEffect(
 		React.useCallback(() => {
 			
-			const messageObserver = onSnapshot(messageQuery, (messageDoc) => {
-				addMessages(messageDoc, setStyledMessages, queryStartAfter, setQueryStartAfter);
-				//messageDoc.docs.forEach((change) => {console.log('docs: ', change.data().message)});
+			const messageObserver = onSnapshot(messageQuery, {includeMetadataChanges: false},(messageDoc) => {
+				if(messageDoc.docChanges().length < 1){
+					return null;
+				}
+				addMessages(messageDoc, setStyledMessages, setQueryStartAfter);
 			});
 
 			return () => {
@@ -50,7 +52,7 @@ export default function ChatRoom() {
 				setQueryStartAfter(null);
 				setLoadingChunk(false);
 			};
-		}, [otherUserId, themeState])
+		}, [otherUserId])
 	);
 
 	

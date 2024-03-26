@@ -3,7 +3,7 @@ import { Text, View, Switch, StyleSheet } from 'react-native';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../state/store';
 import { darkTheme, lightTheme } from '../../../constants/theme';
-import { userData } from '../../../models/userData';
+import { UserData } from '../../../models/UserData';
 import { arrayUnion, doc, getFirestore, updateDoc } from 'firebase/firestore';
 import { store } from '../../../state/store';
 import { setUserData, updateUserData } from '../../../state/slices/userDataSlice';
@@ -14,12 +14,12 @@ import { TouchableOpacity } from 'react-native';
 
 const db = getFirestore();
 
-function getSettings(roomId: string, userData: userData){
+function getSettings(roomId: string, userData: UserData){
 	const isNotificationsOn = userData.mutedRooms?.includes(roomId);
 	return {isNotificationsOn};
 }
 
-async function toggleNotifications(roomId: string, userData: userData){
+async function toggleNotifications(roomId: string, userData: UserData){
 	try{
 		if(userData.mutedRooms?.includes(roomId)){
 			const newMutedRooms = userData.mutedRooms.filter((room: string) => room !== roomId);

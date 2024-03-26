@@ -16,6 +16,7 @@ import { darkTheme, lightTheme } from '../constants/theme';
 import { Entypo } from '@expo/vector-icons';
 import ChatRoomEntryPoint from '../Components/userStack/ChatRoom/ChatRoomEntryPoint';
 import { setSettingsState } from '../state/slices/chatRoomSlice';
+import HomeScreenEntryPoint from '../Components/userStack/HomeScreenEntryPoint';
 const Tab = createBottomTabNavigator();
 
 export default function UserStack(){
@@ -49,7 +50,7 @@ export default function UserStack(){
 							}
 						}
 					}
-				)}>
+				)} initialRouteName='HomeScreenEntryPoint'>
 					<Tab.Screen name='Chats' component={Chats} options={() => (
 						{
 							headerRight: () => <ThemeChange></ThemeChange>
@@ -70,6 +71,10 @@ export default function UserStack(){
 							}}/>;}
 					})}></Tab.Screen>
 					<Tab.Screen name='ChatRoomEntryPoint' component={ChatRoomEntryPoint} options={() => ({
+						tabBarButton: () => null,
+						header: () => null,
+					})}></Tab.Screen>
+					<Tab.Screen name='HomeScreenEntryPoint' component={HomeScreenEntryPoint} options={() => ({
 						tabBarButton: () => null,
 						header: () => null,
 					})}></Tab.Screen>

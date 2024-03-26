@@ -1,12 +1,12 @@
 import { Timestamp } from 'firebase/firestore';
 
-export interface User{
+export interface user{
     name: string,
     pfp: string,
     uid: string,
 }
 
-export interface userData{
+export interface UserData{
     CreatedAt: Timestamp,
     Username: string,
     expoPushToken: string,

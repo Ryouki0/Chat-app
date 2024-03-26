@@ -1,13 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { doc, getDoc, getFirestore } from 'firebase/firestore';
 import React, { useState } from 'react';
-import { Room } from '../../../models/room';
 import { RoomData } from '../../../models/roomData';
 import { store } from '../../../state/store';
 import { setChatRoomData } from '../../../state/slices/chatRoomSlice';
-import reactotron from 'reactotron-react-native';
 import { ActivityIndicator, View } from 'react-native';
-import ChatRoom from './ChatRoom';
 const db = getFirestore();
 export default function ChatRoomEntryPoint({route, navigation}){
 	const roomId = route.params.roomId;

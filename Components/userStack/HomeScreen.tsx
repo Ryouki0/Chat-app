@@ -6,7 +6,7 @@ import { getAuth, } from 'firebase/auth';
 import { doc, getDoc, getFirestore, onSnapshot } from 'firebase/firestore'; 
 import getAllUsers from '../../utils/HomeScreen/getAllUsers';
 import { useFocusEffect } from '@react-navigation/native';
-import { userData } from '../../models/userData';
+import { UserData } from '../../models/UserData';
 import getChatHistory from '../../utils/HomeScreen/getChatHistory';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../state/store';
@@ -16,7 +16,7 @@ import { AntDesign } from '@expo/vector-icons';
 import DisplayUsers from './DisplayUsers';
 import DisplayChatHistory from './DisplayChatHistory';
 import { Room } from '../../models/room';
-import { User } from '../../models/userData';
+import { user } from '../../models/UserData';
 import { setUserData } from '../../state/slices/userDataSlice';
 const auth = getAuth();
 const db = getFirestore();
@@ -37,7 +37,7 @@ export default function Chats({ navigation }) {
 	function onSearch(searchInput?: string) {
 		console.log('search input: ', searchInput);
 		
-		const filteredUsers = allUsers.filter((user: User) => user.name.toLowerCase().includes(searchInput.toLowerCase()));
+		const filteredUsers = allUsers.filter((user: user) => user.name.toLowerCase().includes(searchInput.toLowerCase()));
 		setUsersToDisplay(filteredUsers);
 	}
 
@@ -59,29 +59,16 @@ export default function Chats({ navigation }) {
 	useFocusEffect(
 		React.useCallback(() => {
 			const keyboardDidHideSubscription = Keyboard.addListener('keyboardDidHide', keyboardDidHideCallback);
-			let chatHistorySubscription = null;
-			if(chatRoomQuery){
-				chatHistorySubscription = onSnapshot(chatRoomQuery, async () => {
-					console.log('new message');
-					setChatHistory(await getChatHistory());
-				}, 
-				(err) => {console.log('error in chatHistorySubscription: ', err);});
-			}
-			async function getUserData(){
-				const userData = (await getDoc(doc(db, 'Users', `${auth.currentUser.uid}`))).data() as userData;
-				dispatch(setUserData(userData));
-				console.log('dispatched userData in HomeScreen');
-			}
-
+			const chatHistorySubscription = onSnapshot(chatRoomQuery, async () => {
+				console.log('newMessage in chatHistorySubscription');
+				setChatHistory(await getChatHistory());
+			});
 			async function getUsers() {
 				if(!allUsers){
 					setAllUsers(await getAllUsers());
 				}
-				if(!chatHistory){
-					setChatHistory(await getChatHistory());
-				}
 			}
-			getUserData();
+			
 			getUsers();
 			return () => {
 				keyboardDidHideSubscription?.remove();

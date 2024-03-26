@@ -3,7 +3,7 @@ import { addDoc, collection, getFirestore, serverTimestamp, setDoc } from 'fireb
 import { doc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import uid from 'react-native-uuid';
 import {sendPushNotification} from '../../notification';
-import { userData } from '../../models/userData';
+import { UserData } from '../../models/UserData';
 import { store } from '../../state/store';
 const db = getFirestore();
 
@@ -28,7 +28,7 @@ export default async function sendMessage(roomId: string, currentUserId: string,
 
 		const currentUserData = store.getState().userDataSlice;
 		
-		const otherUserData = (await getDoc(doc(db, 'Users', `${otherUserId}`))).data() as userData;
+		const otherUserData = (await getDoc(doc(db, 'Users', `${otherUserId}`))).data() as UserData;
 		const token = otherUserData.expoPushToken;
 
 		if(!token || !otherUserData.signedIn || otherUserData.mutedRooms?.includes(roomId)){

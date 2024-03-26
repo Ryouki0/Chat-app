@@ -1,7 +1,7 @@
 import { PayloadAction, createSlice } from '@reduxjs/toolkit';
-import { userData } from '../../models/userData';
+import { UserData } from '../../models/UserData';
 
-const initialState: userData = {
+const initialState: UserData = {
 	CreatedAt: null,
 	Username: null,
 	expoPushToken: null,
@@ -15,7 +15,7 @@ const userDataSlice = createSlice({
 	name: 'userDataSlice',
 	initialState: initialState,
 	reducers: {
-		setUserData: (state, action: PayloadAction<userData>) => {
+		setUserData: (state, action: PayloadAction<UserData>) => {
 			return action.payload;
 		},
 		updateUserData: (state, action: PayloadAction<{element: string, newValue: any}>) => {
